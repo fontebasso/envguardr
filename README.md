@@ -5,9 +5,9 @@
 [![npm audit signatures](https://img.shields.io/badge/npm%20audit-signed%20%26%20attested-brightgreen?logo=npm)](https://docs.npmjs.com/generating-provenance-statements)
 [![license](https://img.shields.io/npm/l/envguardr)](LICENSE)
 
-**A CLI tool to validate environment variables against a schema.**
+**Fail-fast CLI to validate environment variables using a strict schema.**
 
-`envguardr` is a lightweight CLI tool that validates your environment variables based on a strict schema defined in TypeScript. Built on top of [valitype](https://www.npmjs.com/package/valitype), it ensures correctness and early failure during build or runtime.
+`envguardr` is a lightweight CLI that validates environment variables at build-time or runtime using a schema authored in TypeScript and compiled to JavaScript. Built on top of [valitype](https://www.npmjs.com/package/valitype), it helps catch misconfigurations early and integrate safely into CI/CD pipelines or local builds.
 
 ## Features
 

@@ -1,6 +1,6 @@
 {
   "name": "envguardr",
-  "description": "A CLI tool to validate environment variables against a schema.",
+  "description": "Fail-fast CLI to validate environment variables using a strict schema.",
   "keywords": [
     "cli",
     "typescript",
