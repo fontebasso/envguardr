@@ -9,7 +9,7 @@
     "schema",
     "validation"
   ],
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": false,
   "type": "module",
   "author": "Samuel Fontebasso",
@@ -38,6 +38,14 @@
   "engines": {
     "node": "^18.0.0 || >=20.0.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fontebasso/envguardr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fontebasso/envguardr/issues"
+  },
+  "homepage": "https://github.com/fontebasso/envguardr#readme",
   "dependencies": {
     "valitype": "^1.0.3"
   },
