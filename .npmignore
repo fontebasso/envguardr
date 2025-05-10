@@ -1,0 +1,11 @@
+# source
+src/
+tests/
+.vitest/
+vitest.config.ts
+tsconfig.json
+
+# local only
+*.log
+coverage/
+.editorconfig

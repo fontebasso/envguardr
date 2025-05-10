@@ -1,0 +1,19 @@
+# node & deps
+node_modules/
+npm-debug.log*
+pnpm-lock.yaml
+yarn.lock
+
+# build output
+dist/
+coverage/
+*.tsbuildinfo
+
+# test output
+.vitest/
+
+# system files
+.DS_Store
+.idea/
+.vscode/
+.env*
