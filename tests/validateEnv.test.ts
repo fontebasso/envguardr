@@ -17,6 +17,11 @@ beforeEach(() => {
     PORT: "8080",
     DEBUG: "true",
     VERSION: "1.2.3",
+    API_KEY: "12345678901234567890123456789012",
+    CACHE_TTL: "3600",
+    AWS_S3_BUCKET: "arn:aws:s3:us-east-1:123456789012:my-bucket",
+    CONFIG_JSON: '{"key": "value"}',
+    RELEASE_DATE: "2023-10-01",
   };
 });
 
