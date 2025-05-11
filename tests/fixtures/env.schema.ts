@@ -1,4 +1,4 @@
-import { validators } from "../../../valitype/src/index.js";
+import { validators } from "valitype";
 
 export default {
   // Basic types
