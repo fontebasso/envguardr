@@ -1,3 +1,5 @@
+import { validators } from "valitype";
+
 export default {
   API_URL: {
     type: "url",
@@ -17,6 +19,18 @@ export default {
   },
   VERSION: {
     type: "string",
+    required: true,
+  },
+  API_KEY: {
+    type: "custom",
+    validator: validators.regex(
+      /^[A-Za-z0-9]{32}$/,
+      "API_KEY must be a 32-character alphanumeric string",
+    ),
+  },
+  AWS_S3_BUCKET: {
+    type: "custom",
+    validator: validators.awsArn("s3", "Must be a valid S3 bucket ARN"),
     required: true,
   },
 };
