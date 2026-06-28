@@ -2,6 +2,8 @@
 
 [![tests](https://github.com/fontebasso/envguardr/actions/workflows/tests.yml/badge.svg)](https://github.com/fontebasso/envguardr/actions/workflows/tests.yml)
 [![npm](https://img.shields.io/npm/v/envguardr)](https://www.npmjs.com/package/envguardr)
+[![downloads](https://img.shields.io/npm/dw/envguardr)](https://www.npmjs.com/package/envguardr)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/envguardr)](https://bundlephobia.com/package/envguardr)
 [![license](https://img.shields.io/npm/l/envguardr)](LICENSE)
 
 **Catch broken env vars before your app starts.**
