@@ -7,9 +7,110 @@ on:
 permissions:
   contents: read
   id-token: write
+  packages: write
+
+concurrency:
+  group: release-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
 
 jobs:
-  release:
+  preflight:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release version
+        id: version
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "Release tag ($VERSION) does not match package.json version ($PACKAGE_VERSION)"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+      - name: Verify npm package contents
+        run: npm pack --dry-run
+
+      - name: Build Docker image locally
+        run: docker build --load -t envguardr:preflight .
+
+      - name: Smoke test Docker image
+        run: docker run --rm envguardr:preflight --help
+
+      - name: Test Docker image with valid schema
+        run: |
+          mkdir -p /tmp/envguardr-smoke
+          cat > /tmp/envguardr-smoke/env.schema.js <<'EOF'
+          import { validators } from 'valitype'
+          export default {
+            API_URL: { type: 'url', required: true },
+            PORT: { type: 'number', required: true },
+            NODE_ENV: { type: { enum: ['development', 'production', 'test'] }, default: 'production' },
+            API_KEY: {
+              type: 'custom',
+              validator: validators.regex(/^[A-Za-z0-9]{32}$/),
+              required: true,
+            },
+          }
+          EOF
+          docker run --rm \
+            -v /tmp/envguardr-smoke:/app:z \
+            -e API_URL=https://example.com \
+            -e PORT=3000 \
+            -e NODE_ENV=production \
+            -e API_KEY=0123456789abcdef0123456789abcdef \
+            envguardr:preflight validate ./env.schema.js
+
+      - name: Test Docker image with invalid schema
+        run: |
+          mkdir -p /tmp/envguardr-smoke-invalid
+          cat > /tmp/envguardr-smoke-invalid/env.schema.js <<'EOF'
+          export default {
+            API_URL: { type: 'url', required: true },
+            PORT: { type: 'number', required: true },
+          }
+          EOF
+          set +e
+          docker run --rm \
+            -v /tmp/envguardr-smoke-invalid:/app:z \
+            -e API_URL=not-a-url \
+            -e PORT=abc \
+            envguardr:preflight validate ./env.schema.js
+          STATUS=$?
+          set -e
+          if [ "$STATUS" -eq 0 ]; then
+            echo "Expected envguardr to fail with invalid environment variables"
+            exit 1
+          fi
+          echo "Invalid environment test failed as expected"
+
+  publish-npm:
+    needs: preflight
     runs-on: ubuntu-latest
 
     steps:
@@ -28,8 +129,64 @@ jobs:
         run: npm ci
 
       - name: Build package
-        run: |
-          npm run build
+        run: npm run build
 
       - name: Publish with provenance and signature
         run: npm publish --access public
+
+  publish-docker:
+    needs:
+      - preflight
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9
+        with:
+          images: |
+            docker.io/fontebasso/envguardr
+            ghcr.io/fontebasso/envguardr
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          provenance: mode=max
+          sbom: true
+
+      - name: Sign images
+        run: |
+          cosign sign --yes docker.io/fontebasso/envguardr@${{ steps.build.outputs.digest }}
+          cosign sign --yes ghcr.io/fontebasso/envguardr@${{ steps.build.outputs.digest }}
