@@ -1,0 +1,67 @@
+name: nodejs-version-audit
+
+on:
+  schedule:
+    - cron: '0 9 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  SUPPORTED_VERSIONS: "20,22,24"
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Compare supported versions against active versions
+        id: compare
+        run: |
+          active=$(curl -sf https://endoflife.date/api/nodejs.json | jq -r --arg today "$(date +%Y-%m-%d)" \
+            '[.[] | select(.eol > $today) | .cycle] | sort_by(tonumber) | join(",")')
+
+          add=$(comm -23 \
+            <(tr ',' '\n' <<< "$active"              | sort | grep -v '^$') \
+            <(tr ',' '\n' <<< "$SUPPORTED_VERSIONS"  | sort | grep -v '^$') \
+            | paste -sd ',')
+          drop=$(comm -23 \
+            <(tr ',' '\n' <<< "$SUPPORTED_VERSIONS"  | sort | grep -v '^$') \
+            <(tr ',' '\n' <<< "$active"              | sort | grep -v '^$') \
+            | paste -sd ',')
+
+          echo "active=$active" >> $GITHUB_OUTPUT
+          echo "add=$add"       >> $GITHUB_OUTPUT
+          echo "drop=$drop"     >> $GITHUB_OUTPUT
+
+      - name: Open issue if versions are out of sync
+        if: steps.compare.outputs.add != '' || steps.compare.outputs.drop != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTIVE: ${{ steps.compare.outputs.active }}
+          ADD:    ${{ steps.compare.outputs.add }}
+          DROP:   ${{ steps.compare.outputs.drop }}
+        run: |
+          open=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "[nodejs-audit] in:title" --json number --jq length)
+          [ "$open" -gt 0 ] && echo "Audit issue already open, skipping." && exit 0
+
+          body=$(mktemp)
+          cat > "$body" <<BODY
+          ## Node.js Version Audit — $(date +%Y-%m-%d)
+
+          | | Versions |
+          |---|---|
+          | Currently supported | \`$SUPPORTED_VERSIONS\` |
+          | Active versions (endoflife.date) | \`$ACTIVE\` |
+
+          ${DROP:+**Deprecate:** \`$DROP\` — reached end-of-life. Remove from \`SUPPORTED_VERSIONS\` in this workflow, from \`.github/workflows/tests.yml\`, and from \`package.json#engines\`.}
+          ${ADD:+**Add support:** \`$ADD\` — active versions not yet covered. Add to \`SUPPORTED_VERSIONS\` in this workflow, to \`.github/workflows/tests.yml\`, and update \`package.json#engines\`.}
+          BODY
+
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "chore: [nodejs-audit] review supported Node.js versions ($(date +%Y-%m-%d))" \
+            --label "compatibility" \
+            --body-file "$body"

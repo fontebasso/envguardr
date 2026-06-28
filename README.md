@@ -62,6 +62,18 @@ Or as an npm script:
 }
 ```
 
+## Node.js support
+
+`envguardr` supports the following Node.js versions:
+
+| Node.js | Status    |
+| ------- | --------- |
+| 20      | Supported |
+| 22      | Supported |
+| 24      | Supported |
+
+The test suite runs against all supported Node.js versions to ensure compatibility across the supported runtime matrix.
+
 ## Types
 
 | Type | Accepts | Notes |
