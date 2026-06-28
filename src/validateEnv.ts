@@ -1,4 +1,4 @@
-import { validateValue } from "valitype";
+import { validateValue, ValidationError } from "valitype";
 import type { Rule } from "valitype";
 
 export async function validateEnvFromSchema(
@@ -19,7 +19,7 @@ export async function validateEnvFromSchema(
       try {
         validateValue(key, process.env[key], rule);
       } catch (err: unknown) {
-        if (err instanceof Error) {
+        if (err instanceof ValidationError) {
           console.error(`❌ ${err.message}`);
         } else {
           console.error("❌ Unknown error");
