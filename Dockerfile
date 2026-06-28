@@ -6,8 +6,8 @@ COPY . .
 RUN npm run build && npm prune --omit=dev
 
 FROM gcr.io/distroless/nodejs24-debian12
+COPY --from=builder /app/dist /dist
+COPY --from=builder /app/node_modules /dist/node_modules
+COPY --from=builder /app/package.json /dist/package.json
 WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-ENTRYPOINT ["/nodejs/bin/node", "/app/dist/bin/cli.js"]
+ENTRYPOINT ["/nodejs/bin/node", "/dist/bin/cli.js"]
