@@ -1,15 +1,19 @@
 {
   "name": "envguardr",
-  "description": "Fail-fast CLI to validate environment variables using a strict schema.",
+  "description": "Catch broken env vars before your app starts — fail-fast CLI with strict schema validation.",
   "keywords": [
     "cli",
-    "typescript",
     "env",
-    "environment",
+    "environment-variables",
+    "validation",
     "schema",
-    "validation"
+    "typescript",
+    "ci",
+    "devops",
+    "dotenv",
+    "fail-fast"
   ],
-  "version": "1.1.0",
+  "version": "2.0.0",
   "private": false,
   "type": "module",
   "author": "Samuel Fontebasso",
