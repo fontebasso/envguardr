@@ -11,7 +11,7 @@ npx envguardr validate ./env.schema.js
 ```
 
 ```
-❌ DATABASE_URL is required
+❌ API_URL is required
 ❌ PORT must be a valid number
 ✅ All environment variables are valid.
 ```
@@ -33,7 +33,7 @@ npm install --save-dev envguardr
 import { validators } from 'valitype';
 
 export default {
-  DATABASE_URL: { type: 'url',    required: true },
+  API_URL:      { type: 'url',    required: true },
   PORT:         { type: 'number', default: 3000 },
   NODE_ENV:     { type: { enum: ['development', 'production', 'test'] }, default: 'development' },
   DEBUG:        { type: 'boolean', default: false },
