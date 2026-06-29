@@ -37,7 +37,10 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "fuzz:validate-env": "npm run build && npx jazzer --sync fuzz/validate-env.fuzz.js -- -runs=10000",
-    "fuzz": "npm run fuzz:validate-env"
+    "fuzz:custom-validators": "npm run build && npx jazzer --sync fuzz/validate-env-custom-validators.fuzz.js -- -runs=10000",
+    "fuzz:schema": "npm run build && npx jazzer --sync fuzz/validate-env-schema.fuzz.js -- -runs=10000",
+    "fuzz:edge-cases": "npm run build && npx jazzer --sync fuzz/validate-env-edge-cases.fuzz.js -- -runs=10000",
+    "fuzz": "npm run fuzz:validate-env && npm run fuzz:custom-validators && npm run fuzz:schema && npm run fuzz:edge-cases"
   },
   "bin": {
     "envguardr": "./dist/bin/cli.js"
