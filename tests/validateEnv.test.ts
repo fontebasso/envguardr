@@ -1,16 +1,24 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { validateEnvFromSchema } from "../src/validateEnv";
+import { beforeEach, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { validateEnvFromSchema, loadSchemaFromPath } from "../src/validateEnv";
 
-// define um mock de process.env para cada teste
-beforeEach(() => {
-  vi.resetModules();
-  vi.mock("valitype", async () => {
-    const actual = await vi.importActual<typeof import("valitype")>("valitype");
-    return {
-      ...actual,
-      validateValue: vi.fn(actual.validateValue),
-    };
-  });
+vi.mock("valitype", async () => {
+  const actual = await vi.importActual<typeof import("valitype")>("valitype");
+  return {
+    ...actual,
+    validateValue: vi.fn(actual.validateValue),
+  };
+});
+
+let actualValidateValue: typeof import("valitype").validateValue;
+
+beforeAll(async () => {
+  const actual = await vi.importActual<typeof import("valitype")>("valitype");
+  actualValidateValue = actual.validateValue;
+});
+
+beforeEach(async () => {
+  const mod = await import("valitype");
+  vi.mocked(mod.validateValue).mockImplementation(actualValidateValue);
   process.env = {
     API_URL: "https://api.example.com",
     NODE_ENV: "production",
@@ -25,6 +33,10 @@ beforeEach(() => {
   };
 });
 
+afterEach(() => {
+  vi.resetAllMocks();
+});
+
 describe("validateEnvFromSchema", () => {
   it("returns true for valid environment variables", async () => {
     const ok = await validateEnvFromSchema("./tests/fixtures/env.schema.ts");
@@ -32,7 +44,7 @@ describe("validateEnvFromSchema", () => {
   });
 
   it("returns false and prints errors when variables are invalid", async () => {
-    delete process.env.API_URL; // força erro
+    delete process.env.API_URL;
     const consoleError = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
@@ -58,20 +70,17 @@ describe("validateEnvFromSchema", () => {
     );
   });
 
-  it("handles non-Error thrown inside validation loop", async () => {
+  it("propagates non-Error thrown inside validation loop", async () => {
     const { validateValue } = await import("valitype");
-    const consoleError = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
 
+    // @ts-ignore
     (validateValue as unknown as vi.Mock).mockImplementation(() => {
       throw "non-error thrown";
     });
 
-    const ok = await validateEnvFromSchema("./tests/fixtures/env.schema.ts");
-
-    expect(ok).toBe(false);
-    expect(consoleError).toHaveBeenCalledWith("❌ Unknown error");
+    await expect(
+      validateEnvFromSchema("./tests/fixtures/env.schema.ts"),
+    ).rejects.toBe("non-error thrown");
   });
 
   it("prints 'Unknown error' when schema import throws non-Error", async () => {
@@ -87,5 +96,25 @@ describe("validateEnvFromSchema", () => {
     expect(consoleError).toHaveBeenCalledWith(
       "❌ Failed to load schema: Unknown error",
     );
+  });
+});
+
+describe("loadSchemaFromPath", () => {
+  it("loads schema using provided dynamicImport", async () => {
+    const fakeSchema = { PORT: { type: "number" as const, required: true } };
+    const fakeImport = vi.fn().mockResolvedValue({ default: fakeSchema });
+
+    const schema = await loadSchemaFromPath("./any.ts", fakeImport);
+
+    expect(schema).toBe(fakeSchema);
+    expect(fakeImport).toHaveBeenCalledWith(expect.stringContaining("any.ts"));
+  });
+
+  it("throws when dynamicImport rejects", async () => {
+    const fakeImport = vi.fn().mockRejectedValue(new Error("not found"));
+
+    await expect(
+      loadSchemaFromPath("./missing.ts", fakeImport),
+    ).rejects.toThrow("not found");
   });
 });
