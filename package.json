@@ -1,19 +1,29 @@
 {
   "name": "envguardr",
-  "description": "Catch broken env vars before your app starts — fail-fast CLI with strict schema validation.",
+  "description": "Fail-fast environment variable validation for Node.js, CI/CD, and bad deploy prevention.",
   "keywords": [
     "cli",
+    "nodejs",
     "env",
+    "dotenv",
+    "process-env",
+    "environment",
     "environment-variables",
     "validation",
+    "validator",
     "schema",
+    "config",
+    "runtime-config",
     "typescript",
+    "javascript",
     "ci",
+    "cd",
+    "cicd",
     "devops",
-    "dotenv",
+    "docker",
     "fail-fast"
   ],
-  "version": "2.2.1",
+  "version": "3.0.0",
   "private": false,
   "type": "module",
   "author": "Samuel Fontebasso",
@@ -40,7 +50,7 @@
     "access": "public"
   },
   "engines": {
-    "node": "^20.0.0 || ^22.0.0 || ^24.0.0"
+    "node": "^22.0.0 || ^24.0.0 || ^26.0.0"
   },
   "repository": {
     "type": "git",
