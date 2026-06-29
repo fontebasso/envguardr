@@ -23,11 +23,6 @@ jobs:
           active=$(curl -sf https://endoflife.date/api/nodejs.json | jq -r --arg today "$(date +%Y-%m-%d)" \
             '[.[] | select(.eol > $today) | .cycle] | sort_by(tonumber) | join(",")')
 
-          if [ -n "$active" ] && ! [[ "$active" =~ ^[0-9]+(,[0-9]+)*$ ]]; then
-            echo "Unexpected format in active versions from API: $active"
-            exit 1
-          fi
-
           add=$(comm -23 \
             <(tr ',' '\n' <<< "$active"              | sort | grep -v '^$') \
             <(tr ',' '\n' <<< "$SUPPORTED_VERSIONS"  | sort | grep -v '^$') \
@@ -37,18 +32,9 @@ jobs:
             <(tr ',' '\n' <<< "$active"              | sort | grep -v '^$') \
             | paste -sd ',')
 
-          if [ -n "$add" ] && ! [[ "$add" =~ ^[0-9]+(,[0-9]+)*$ ]]; then
-            echo "Unexpected format in add list: $add"
-            exit 1
-          fi
-          if [ -n "$drop" ] && ! [[ "$drop" =~ ^[0-9]+(,[0-9]+)*$ ]]; then
-            echo "Unexpected format in drop list: $drop"
-            exit 1
-          fi
-
-          echo "active=$active" >> "$GITHUB_OUTPUT"
-          echo "add=$add"       >> "$GITHUB_OUTPUT"
-          echo "drop=$drop"     >> "$GITHUB_OUTPUT"
+          echo "active=$active" >> $GITHUB_OUTPUT
+          echo "add=$add"       >> $GITHUB_OUTPUT
+          echo "drop=$drop"     >> $GITHUB_OUTPUT
 
       - name: Open issue if versions are out of sync
         if: steps.compare.outputs.add != '' || steps.compare.outputs.drop != ''
