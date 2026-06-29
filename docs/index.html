@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Fail-fast environment variable validation for Node.js, CI/CD, and containerized apps." />
+  <title>envguardr</title>
+  <link rel="icon" href="logo-envguardr.png" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" crossorigin="anonymous" />
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="#" class="nav-logo">envguardr</a>
+      <ul>
+        <li><a href="#guide">Guide</a></li>
+        <li><a href="#docker">Docker</a></li>
+        <li><a href="#security">Security</a></li>
+        <li><a href="https://github.com/fontebasso/envguardr" target="_blank" rel="noopener">GitHub</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <img src="logo-envguardr.png" alt="envguardr" class="hero-logo" />
+      <p class="tagline">You deployed. An env var was missing. Prod crashed at 3am.<br>envguardr stops that before it happens.</p>
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span></span><span></span><span></span>
+        </div>
+        <pre><code><span class="dim">$</span> npx envguardr validate ./env.schema.js
+
+<span class="error">❌ API_URL is required</span>
+<span class="error">❌ PORT must be a valid number</span>
+<span class="success">✅ All environment variables are valid.</span></code></pre>
+      </div>
+      <div class="hero-actions">
+        <a href="#guide" class="btn btn-primary">Get Started</a>
+        <a href="https://www.npmjs.com/package/envguardr" target="_blank" rel="noopener" class="btn btn-secondary">npm</a>
+        <a href="https://hub.docker.com/r/fontebasso/envguardr" target="_blank" rel="noopener" class="btn btn-secondary">Docker Hub</a>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="features-grid">
+        <div class="feature">
+          <h3>Blocks bad deploys</h3>
+          <p>Fails CI before a misconfigured app ever reaches production. Exits with code 1 on failure.</p>
+        </div>
+        <div class="feature">
+          <h3>Strict by design</h3>
+          <p>Rejects <code>1e5</code>, <code>yes</code>, <code>on</code> — no silent type coercion surprises.</p>
+        </div>
+        <div class="feature">
+          <h3>Zero config overhead</h3>
+          <p>One plain JS file, no classes, decorators, or build steps required.</p>
+        </div>
+        <div class="feature">
+          <h3>Works everywhere</h3>
+          <p>npm script, CI step, Docker image (amd64 + arm64), or <code>npx</code>.</p>
+        </div>
+        <div class="feature">
+          <h3>No telemetry</h3>
+          <p>Validation runs locally. Environment data never leaves your machine.</p>
+        </div>
+        <div class="feature">
+          <h3>Supply chain transparency</h3>
+          <p>Signed images, SBOM, and provenance — fully auditable end to end.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="guide" class="docs">
+      <div class="container">
+
+        <h2>Quick start</h2>
+        <p>Create an <code>env.schema.js</code> file:</p>
+        <div class="code-block">
+          <button class="copy-btn" aria-label="Copy">Copy</button>
+          <pre><code class="lang-js">export default {
+  API_URL: { type: 'url', required: true },
+  PORT:    { type: 'number', default: 3000 },
+  NODE_ENV: {
+    type: { enum: ['development', 'production', 'test'] },
+    default: 'development',
+  },
+}</code></pre>
+        </div>
+        <p>Run validation:</p>
+        <div class="code-block">
+          <button class="copy-btn" aria-label="Copy">Copy</button>
+          <pre><code class="lang-bash">npx envguardr validate ./env.schema.js</code></pre>
+        </div>
+
+        <h2>Install</h2>
+        <div class="code-block">
+          <button class="copy-btn" aria-label="Copy">Copy</button>
+          <pre><code class="lang-bash">npm install --save-dev envguardr</code></pre>
+        </div>
+
+        <h2>Schema</h2>
+        <p>Schemas are plain JavaScript modules with full access to built-in validators:</p>
+        <div class="code-block">
+          <button class="copy-btn" aria-label="Copy">Copy</button>
+          <pre><code class="lang-js">import { validators } from 'valitype'
+
+export default {
+  API_URL: { type: 'url', required: true },
+  PORT:    { type: 'number', default: 3000 },
+  NODE_ENV: {
+    type: { enum: ['development', 'production', 'test'] },
+    default: 'development',
+  },
+  DEBUG:   { type: 'boolean', default: false },
+  API_KEY: {
+    type: 'custom',
+    validator: validators.regex(/^[A-Za-z0-9]{32}$/, 'Must be 32 alphanumeric characters'),
+    required: true,
+  },
+}</code></pre>
+        </div>
+
+        <h2>CI/CD</h2>
+        <div class="code-block">
+          <button class="copy-btn" aria-label="Copy">Copy</button>
+          <pre><code class="lang-yaml">- name: Validate environment
+  run: npx envguardr validate ./env.schema.js</code></pre>
+        </div>
+        <p>Or as an npm script:</p>
+        <div class="code-block">
+          <button class="copy-btn" aria-label="Copy">Copy</button>
+          <pre><code class="lang-json">{
+  "scripts": {
+    "check-env": "envguardr validate ./env.schema.js"
+  }
+}</code></pre>
+        </div>
+
+        <h2 id="docker">Docker</h2>
+        <div class="code-block">
+          <button class="copy-btn" aria-label="Copy">Copy</button>
+          <pre><code class="lang-bash">docker run --rm \
+  --env-file .env \
+  -v "$PWD:/app" \
+  docker.io/fontebasso/envguardr validate ./env.schema.js</code></pre>
+        </div>
+        <table>
+          <thead><tr><th>Platform</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td><code>linux/amd64</code></td><td>Supported</td></tr>
+            <tr><td><code>linux/arm64</code></td><td>Supported</td></tr>
+          </tbody>
+        </table>
+
+        <h2>Validation types</h2>
+        <table>
+          <thead>
+            <tr><th>Type</th><th>Accepts</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>string</code></td><td>Any string</td><td></td></tr>
+            <tr><td><code>number</code></td><td><code>"3000"</code></td><td>Decimal only; rejects <code>0xff</code>, <code>1e5</code></td></tr>
+            <tr><td><code>boolean</code></td><td><code>"true"</code> / <code>"false"</code></td><td>Strict; rejects <code>1</code>, <code>yes</code>, <code>on</code></td></tr>
+            <tr><td><code>url</code></td><td><code>"https://..."</code></td><td>Requires http or https</td></tr>
+            <tr><td><code>{ enum: string[] }</code></td><td>One listed value</td><td></td></tr>
+            <tr><td><code>custom</code></td><td>Custom validator</td><td></td></tr>
+          </tbody>
+        </table>
+        <p>All types support <code>required</code> and <code>default</code>.</p>
+
+        <h2>Built-in validators</h2>
+        <div class="code-block">
+          <button class="copy-btn" aria-label="Copy">Copy</button>
+          <pre><code class="lang-ts">validators.regex(/^[A-Z]{3}$/, 'Must be 3 uppercase letters')
+validators.range(1, 65535, 'Must be a valid port')
+validators.oneOf(['us-east-1', 'eu-west-1'], 'Unsupported region')
+validators.date('YYYY-MM-DD', 'Invalid date format')
+validators.json('Must be valid JSON')
+validators.awsArn('lambda', 'Must be a valid Lambda ARN')
+validators.all(validators.regex(/^[A-Z]/), validators.oneOf(['Alpha', 'Beta']))</code></pre>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="security" class="security-section">
+      <div class="container">
+        <h2>Security &amp; supply chain</h2>
+        <ul>
+          <li>npm Trusted Publishing with provenance (OIDC-based, no long-lived tokens)</li>
+          <li>Docker images with provenance and SBOM</li>
+          <li>Signed images via cosign / Sigstore (keyless, OIDC)</li>
+          <li>Distroless, non-root containers</li>
+          <li>GitHub Actions pinned by SHA</li>
+          <li>CodeQL scanning enabled</li>
+        </ul>
+        <h3>Verifying container images</h3>
+        <div class="code-block">
+          <button class="copy-btn" aria-label="Copy">Copy</button>
+          <pre><code class="lang-bash">cosign verify \
+  --certificate-identity-regexp "https://github.com/fontebasso/envguardr/.github/workflows/.*" \
+  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+  docker.io/fontebasso/envguardr:latest</code></pre>
+        </div>
+        <p>To report a vulnerability, see <a href="https://github.com/fontebasso/envguardr/blob/main/SECURITY.md" target="_blank" rel="noopener">SECURITY.md</a>.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>
+      Released under the <a href="https://github.com/fontebasso/envguardr/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> ·
+      <a href="https://github.com/fontebasso/envguardr" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://www.npmjs.com/package/envguardr" target="_blank" rel="noopener">npm</a> ·
+      <a href="https://github.com/fontebasso/envguardr/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+    </p>
+    <p class="footer-cta">If envguardr saved you from a bad deploy, consider <a href="https://github.com/fontebasso/envguardr" target="_blank" rel="noopener">leaving a star</a>.</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous"></script>
+  <script src="script.js"></script>
+</body>
+</html>

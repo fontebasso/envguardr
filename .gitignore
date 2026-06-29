@@ -12,6 +12,9 @@ coverage/
 # test output
 .vitest/
 
+# docs build assets (copied by CI)
+docs/logo-envguardr.png
+
 # system files
 .DS_Store
 .idea/
