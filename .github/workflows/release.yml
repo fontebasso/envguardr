@@ -28,9 +28,15 @@ jobs:
 
       - name: Resolve release version
         id: version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          TAG="${{ github.event.release.tag_name }}"
+          TAG="$RELEASE_TAG"
           VERSION="${TAG#v}"
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid release version format: $VERSION"
+            exit 1
+          fi
           PACKAGE_VERSION="$(node -p "require('./package.json').version")"
           if [ "$VERSION" != "$PACKAGE_VERSION" ]; then
             echo "Release tag ($VERSION) does not match package.json version ($PACKAGE_VERSION)"
@@ -191,6 +197,8 @@ jobs:
           sbom: true
 
       - name: Sign images
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
         run: |
-          cosign sign --yes docker.io/fontebasso/envguardr@${{ steps.build.outputs.digest }}
-          cosign sign --yes ghcr.io/fontebasso/envguardr@${{ steps.build.outputs.digest }}
+          cosign sign --yes "docker.io/fontebasso/envguardr@${DIGEST}"
+          cosign sign --yes "ghcr.io/fontebasso/envguardr@${DIGEST}"
