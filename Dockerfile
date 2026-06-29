@@ -7,7 +7,7 @@ RUN npm run build \
     && npm prune --omit=dev \
     && node dist/bin/cli.js --help
 
-FROM gcr.io/distroless/nodejs24-debian13@sha256:ed5e65a1036b505c9e5abf0d0412ce0f70be1b812630bbbbaf49ce47edc7a513
+FROM gcr.io/distroless/nodejs24-debian13@sha256:ef5f3caf80da1630edd1a4df7b307a8f7d4553f8eec1dd29852b76e793593903
 COPY --from=builder /app/dist /
 COPY --from=builder /app/node_modules /node_modules
 COPY --from=builder /app/package.json /package.json
