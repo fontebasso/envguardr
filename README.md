@@ -1,4 +1,4 @@
-<p>
+<p align="center">
   <img src="assets/logo-envguardr.png" alt="envguardr" width="256" />
 </p>
 <hr>
@@ -6,11 +6,12 @@
 # envguardr
 
 [![tests](https://github.com/fontebasso/envguardr/actions/workflows/tests.yml/badge.svg)](https://github.com/fontebasso/envguardr/actions/workflows/tests.yml)
-[![stars](https://img.shields.io/github/stars/fontebasso/envguardr?style=flat)](https://github.com/fontebasso/envguardr/stargazers)
+[![CodeQL](https://github.com/fontebasso/envguardr/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/fontebasso/envguardr/actions/workflows/github-code-scanning/codeql)
 [![npm](https://img.shields.io/npm/v/envguardr)](https://www.npmjs.com/package/envguardr)
 [![downloads](https://img.shields.io/npm/dw/envguardr)](https://www.npmjs.com/package/envguardr)
 [![size](https://img.shields.io/npm/unpacked-size/envguardr)](https://www.npmjs.com/package/envguardr)
-[![license](https://img.shields.io/npm/l/envguardr)](LICENSE)
+[![docker pulls](https://img.shields.io/docker/pulls/fontebasso/envguardr)](https://hub.docker.com/r/fontebasso/envguardr)
+[![stars](https://img.shields.io/github/stars/fontebasso/envguardr?style=flat)](https://github.com/fontebasso/envguardr/stargazers)
 
 You deployed. An env var was missing. Prod crashed at 3am.
 
