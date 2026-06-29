@@ -3,7 +3,6 @@ import { validateEnv } from "../dist/src/core/validate-env.js";
 import { validators } from "valitype";
 import { assertResult } from "./assert-result.js";
 
-// All fields optional so the fuzzer exercises validator logic, not required-field logic
 const schema = {
   REGEX_FIELD: {
     type: "custom",
