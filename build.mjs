@@ -24,3 +24,13 @@ await build({
   target: 'node18',
   minify: true,
 })
+
+await build({
+  entryPoints: ['src/core/validate-env.ts'],
+  outfile: 'dist/src/core/validate-env.js',
+  bundle: true,
+  external: ['valitype'],
+  format: 'esm',
+  platform: 'node',
+  target: 'node18',
+})

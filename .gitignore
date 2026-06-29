@@ -20,3 +20,11 @@ docs/logo-envguardr.png
 .idea/
 .vscode/
 .env*
+
+# jazzer / libfuzzer artifacts
+crash-*
+leak-*
+timeout-*
+oom-*
+fuzz/corpus/
+fuzz/artifacts/

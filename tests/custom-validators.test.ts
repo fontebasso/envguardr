@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterAll } from "vitest";
 import { validateEnvFromSchema } from "../src/validateEnv";
 import path from "path";
 import { fileURLToPath } from "url";
