@@ -61,7 +61,7 @@
   },
   "homepage": "https://github.com/fontebasso/envguardr#readme",
   "dependencies": {
-    "valitype": "2.0.2"
+    "valitype": "3.0.0"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",
