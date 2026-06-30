@@ -1,0 +1,56 @@
+name: ClusterFuzzLite PR fuzzing
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - name: Build fuzzers
+        uses: google/clusterfuzzlite/actions/build_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1
+        with:
+          language: javascript
+          sanitizer: none
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+
+      - name: Run fuzzers
+        uses: google/clusterfuzzlite/actions/run_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1
+        with:
+          language: javascript
+          sanitizer: none
+          fuzz-seconds: 60
+          mode: code-change
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          output-sarif: true
+
+      - name: Upload SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: clusterfuzzlite-sarif
+          path: cifuzz-sarif/results.sarif
+          if-no-files-found: ignore
+
+      - name: Upload SARIF to Code Scanning
+        if: always() && hashFiles('cifuzz-sarif/results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e
+        with:
+          sarif_file: cifuzz-sarif/results.sarif
+          category: clusterfuzzlite-javascript
