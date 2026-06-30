@@ -26,7 +26,7 @@ jobs:
         uses: google/clusterfuzzlite/actions/build_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1
         with:
           language: javascript
-          sanitizer: none
+          sanitizer: undefined
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
 
@@ -34,7 +34,7 @@ jobs:
         uses: google/clusterfuzzlite/actions/run_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1
         with:
           language: javascript
-          sanitizer: none
+          sanitizer: undefined
           fuzz-seconds: 60
           mode: code-change
           github-token: ${{ secrets.GITHUB_TOKEN }}
