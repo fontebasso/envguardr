@@ -1,4 +1,4 @@
-import { FuzzedDataProvider } from "@jazzer.js/core";
+import fc from "fast-check";
 import { validateEnv } from "../dist/src/core/validate-env.js";
 import { validators } from "valitype";
 import { assertResult } from "./assert-result.js";
@@ -31,17 +31,24 @@ const schema = {
   },
 };
 
-export function fuzz(data) {
-  const provider = new FuzzedDataProvider(data);
-
-  const env = {
-    REGEX_FIELD: provider.consumeString(300),
-    RANGE_FIELD: provider.consumeString(100),
-    DATE_FIELD:  provider.consumeString(100),
-    JSON_FIELD:  provider.consumeString(1000),
-    ARN_FIELD:   provider.consumeString(300),
-  };
-
-  const result = validateEnv(schema, env);
-  assertResult(result);
-}
+fc.assert(
+  fc.property(
+    fc.string({ maxLength: 300 }),
+    fc.string({ maxLength: 100 }),
+    fc.string({ maxLength: 100 }),
+    fc.string({ maxLength: 1000 }),
+    fc.string({ maxLength: 300 }),
+    (regexField, rangeField, dateField, jsonField, arnField) => {
+      const env = {
+        REGEX_FIELD: regexField,
+        RANGE_FIELD: rangeField,
+        DATE_FIELD: dateField,
+        JSON_FIELD: jsonField,
+        ARN_FIELD: arnField,
+      };
+      const result = validateEnv(schema, env);
+      assertResult(result);
+    }
+  ),
+  { numRuns: 10000 }
+);

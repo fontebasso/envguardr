@@ -1,10 +1,9 @@
-import { FuzzedDataProvider } from "@jazzer.js/core";
+import fc from "fast-check";
 import { validateEnv } from "../dist/src/core/validate-env.js";
 import { validators } from "valitype";
 import { assertResult } from "./assert-result.js";
 
 const ENUM_VALUES = ["development", "production", "test", "staging"];
-
 const CUSTOM_VALIDATORS = [
   validators.regex(/^[A-Za-z0-9]+$/, "Must be alphanumeric"),
   validators.range(0, 86400, "Must be 0–86400"),
@@ -12,13 +11,8 @@ const CUSTOM_VALIDATORS = [
   validators.json("Must be valid JSON"),
 ];
 
-const TYPE_COUNT = 9;
-
-function pickRule(provider) {
-  const idx = provider.consumeIntegralInRange(0, TYPE_COUNT - 1);
-  const required = provider.consumeBoolean();
-
-  switch (idx) {
+function buildRule({ typeIdx, required }) {
+  switch (typeIdx) {
     case 0: return { type: "string",  required };
     case 1: return { type: "number",  required };
     case 2: return { type: "boolean", required };
@@ -32,19 +26,25 @@ function pickRule(provider) {
   }
 }
 
-export function fuzz(data) {
-  const provider = new FuzzedDataProvider(data);
+const ruleArb = fc.record({
+  typeIdx: fc.integer({ min: 0, max: 8 }),
+  required: fc.boolean(),
+});
 
-  const keyCount = provider.consumeIntegralInRange(1, 8);
-  const schema = {};
-  const env = {};
-
-  for (let i = 0; i < keyCount; i++) {
-    const key = `KEY_${i}`;
-    schema[key] = pickRule(provider);
-    env[key] = provider.consumeString(200);
-  }
-
-  const result = validateEnv(schema, env);
-  assertResult(result);
-}
+fc.assert(
+  fc.property(
+    fc.array(fc.tuple(ruleArb, fc.string({ maxLength: 200 })), { minLength: 1, maxLength: 8 }),
+    (entries) => {
+      const schema = {};
+      const env = {};
+      entries.forEach(([rule, value], i) => {
+        const key = `KEY_${i}`;
+        schema[key] = buildRule(rule);
+        env[key] = value;
+      });
+      const result = validateEnv(schema, env);
+      assertResult(result);
+    }
+  ),
+  { numRuns: 10000 }
+);
