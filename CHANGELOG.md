@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-06-29
+
+### Added
+
+- `validateEnv(schema, env)` as a pure validation function
+- `loadSchemaFromPath(schemaPath, dynamicImport?)` for schema loading
+- New exported types: `EnvSchema`, `EnvValues`, `EnvValidationIssue`, `EnvValidationResult`
+- OpenSSF Scorecard workflow
+- Renovate Bot configuration
+- `CODEOWNERS`
+- Jazzer.js fuzzing with 4 targets: validation, custom validators, arbitrary schema, encoding edge cases
+
+### Changed
+
+- Updated `valitype` from `2.0.2` to `3.0.0`
+- Docker images pinned by SHA digest
+- SRI hashes added to documentation assets
+- GitHub Actions permissions scoped at job level
+
 ## [3.0.0] - 2026-06-28
 
 ### Breaking
