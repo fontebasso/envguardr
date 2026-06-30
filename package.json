@@ -36,15 +36,11 @@
     "validate": "tsx bin/cli.ts validate ./tests/fixtures/env.schema.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "fuzz:validate-env": "npm run build && npx jazzer --sync fuzz/validate-env.fuzz.js -- -runs=10000",
-    "fuzz:custom-validators": "npm run build && npx jazzer --sync fuzz/validate-env-custom-validators.fuzz.js -- -runs=10000",
-    "fuzz:schema": "npm run build && npx jazzer --sync fuzz/validate-env-schema.fuzz.js -- -runs=10000",
-    "fuzz:edge-cases": "npm run build && npx jazzer --sync fuzz/validate-env-edge-cases.fuzz.js -- -runs=10000",
-    "fuzz:validate-env:run": "npx jazzer --sync fuzz/validate-env.fuzz.js -- -runs=10000",
-    "fuzz:custom-validators:run": "npx jazzer --sync fuzz/validate-env-custom-validators.fuzz.js -- -runs=10000",
-    "fuzz:schema:run": "npx jazzer --sync fuzz/validate-env-schema.fuzz.js -- -runs=10000",
-    "fuzz:edge-cases:run": "npx jazzer --sync fuzz/validate-env-edge-cases.fuzz.js -- -runs=10000",
-    "fuzz": "npm run build && npm run fuzz:validate-env:run && npm run fuzz:custom-validators:run && npm run fuzz:schema:run && npm run fuzz:edge-cases:run"
+    "fuzz:validate-env": "node fuzz/validate-env.fuzz.js",
+    "fuzz:custom-validators": "node fuzz/validate-env-custom-validators.fuzz.js",
+    "fuzz:schema": "node fuzz/validate-env-schema.fuzz.js",
+    "fuzz:edge-cases": "node fuzz/validate-env-edge-cases.fuzz.js",
+    "fuzz": "npm run build && node fuzz/validate-env.fuzz.js && node fuzz/validate-env-custom-validators.fuzz.js && node fuzz/validate-env-schema.fuzz.js && node fuzz/validate-env-edge-cases.fuzz.js"
   },
   "bin": {
     "envguardr": "./dist/bin/cli.js"
@@ -73,7 +69,7 @@
     "valitype": "3.0.0"
   },
   "devDependencies": {
-    "@jazzer.js/core": "^4.0.0",
+    "fast-check": "^4.8.0",
     "@types/node": "^26.0.1",
     "@typescript-eslint/eslint-plugin": "^8.62.0",
     "@typescript-eslint/parser": "^8.62.0",

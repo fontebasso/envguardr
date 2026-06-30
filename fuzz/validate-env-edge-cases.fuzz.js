@@ -1,4 +1,4 @@
-import { FuzzedDataProvider } from "@jazzer.js/core";
+import fc from "fast-check";
 import { validateEnv } from "../dist/src/core/validate-env.js";
 import { assertResult } from "./assert-result.js";
 
@@ -10,19 +10,26 @@ const schema = {
   FLAG:     { type: "boolean", required: false },
 };
 
-export function fuzz(data) {
-  const provider = new FuzzedDataProvider(data);
+const toStr = (bytes) => Buffer.from(bytes).toString("latin1");
 
-  const toStr = (bytes) => Buffer.from(bytes).toString("latin1");
-
-  const env = {
-    API_URL:  toStr(provider.consumeBytes(5000)),
-    PORT:     toStr(provider.consumeBytes(200)),
-    NODE_ENV: toStr(provider.consumeBytes(200)),
-    API_KEY:  provider.consumeRemainingAsString(),
-    FLAG:     toStr(provider.consumeBytes(50)),
-  };
-
-  const result = validateEnv(schema, env);
-  assertResult(result);
-}
+fc.assert(
+  fc.property(
+    fc.uint8Array({ maxLength: 5000 }),
+    fc.uint8Array({ maxLength: 200 }),
+    fc.uint8Array({ maxLength: 200 }),
+    fc.string(),
+    fc.uint8Array({ maxLength: 50 }),
+    (apiUrlBytes, portBytes, nodeEnvBytes, apiKey, flagBytes) => {
+      const env = {
+        API_URL:  toStr(apiUrlBytes),
+        PORT:     toStr(portBytes),
+        NODE_ENV: toStr(nodeEnvBytes),
+        API_KEY:  apiKey,
+        FLAG:     toStr(flagBytes),
+      };
+      const result = validateEnv(schema, env);
+      assertResult(result);
+    }
+  ),
+  { numRuns: 10000 }
+);
