@@ -12,6 +12,7 @@
 [![size](https://img.shields.io/npm/unpacked-size/envguardr)](https://www.npmjs.com/package/envguardr)
 [![docker pulls](https://img.shields.io/docker/pulls/fontebasso/envguardr)](https://hub.docker.com/r/fontebasso/envguardr)
 [![stars](https://img.shields.io/github/stars/fontebasso/envguardr?style=flat)](https://github.com/fontebasso/envguardr/stargazers)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13426/badge)](https://www.bestpractices.dev/projects/13426)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/fontebasso/envguardr/badge)](https://scorecard.dev/viewer/?uri=github.com/fontebasso/envguardr)
 
 
