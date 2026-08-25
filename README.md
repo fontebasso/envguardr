@@ -3,17 +3,18 @@
 </p>
 <hr>
 
-# envguardr
-
-[![tests](https://github.com/fontebasso/envguardr/actions/workflows/tests.yml/badge.svg)](https://github.com/fontebasso/envguardr/actions/workflows/tests.yml)
-[![CodeQL](https://github.com/fontebasso/envguardr/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/fontebasso/envguardr/actions/workflows/github-code-scanning/codeql)
-[![npm](https://img.shields.io/npm/v/envguardr)](https://www.npmjs.com/package/envguardr)
-[![downloads](https://img.shields.io/npm/dw/envguardr)](https://www.npmjs.com/package/envguardr)
-[![size](https://img.shields.io/npm/unpacked-size/envguardr)](https://www.npmjs.com/package/envguardr)
-[![docker pulls](https://img.shields.io/docker/pulls/fontebasso/envguardr)](https://hub.docker.com/r/fontebasso/envguardr)
-[![stars](https://img.shields.io/github/stars/fontebasso/envguardr?style=flat)](https://github.com/fontebasso/envguardr/stargazers)
-[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13426/badge)](https://www.bestpractices.dev/projects/13426)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/fontebasso/envguardr/badge)](https://scorecard.dev/viewer/?uri=github.com/fontebasso/envguardr)
+<p align="center">
+  <a href="https://github.com/fontebasso/envguardr/actions/workflows/tests.yml"><img src="https://github.com/fontebasso/envguardr/actions/workflows/tests.yml/badge.svg" alt="tests" /></a>
+  <a href="https://github.com/fontebasso/envguardr/actions/workflows/github-code-scanning/codeql"><img src="https://github.com/fontebasso/envguardr/actions/workflows/github-code-scanning/codeql/badge.svg" alt="CodeQL" /></a>
+  <a href="https://coveralls.io/github/fontebasso/envguardr?branch=main"><img src="https://coveralls.io/repos/github/fontebasso/envguardr/badge.svg?branch=main" alt="Coverage Status" /></a>
+  <a href="https://www.npmjs.com/package/envguardr"><img src="https://img.shields.io/npm/v/envguardr" alt="npm" /></a>
+  <a href="https://www.npmjs.com/package/envguardr"><img src="https://img.shields.io/npm/dw/envguardr" alt="downloads" /></a>
+  <a href="https://www.npmjs.com/package/envguardr"><img src="https://img.shields.io/npm/unpacked-size/envguardr" alt="size" /></a>
+  <a href="https://hub.docker.com/r/fontebasso/envguardr"><img src="https://img.shields.io/docker/pulls/fontebasso/envguardr" alt="docker pulls" /></a>
+  <a href="https://github.com/fontebasso/envguardr/stargazers"><img src="https://img.shields.io/github/stars/fontebasso/envguardr?style=flat" alt="stars" /></a>
+  <a href="https://www.bestpractices.dev/projects/13426"><img src="https://www.bestpractices.dev/projects/13426/badge" alt="OpenSSF Best Practices" /></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/fontebasso/envguardr"><img src="https://api.scorecard.dev/projects/github.com/fontebasso/envguardr/badge" alt="OpenSSF Scorecard" /></a>
+</p>
 
 
 You deployed. An env var was missing. Prod crashed at 3am.
