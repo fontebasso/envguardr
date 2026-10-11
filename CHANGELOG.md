@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.8] - 2026-10-11
+
+### Changed
+
+* Updated `vitest` and `@vitest/coverage-v8` to `5.0.3`.
+* Updated `eslint` to `10.12.0`, `@typescript-eslint/*` to `8.70.0`, `prettier` to `3.9.10`, `tsx` to `4.23.15`, `fast-check` to `4.10.2` and `@types/node` to `26.6.5`.
+* Updated the `distroless/nodejs24-debian13` and `node` base image digests.
+* Updated GitHub Actions pins (`codeql-action`, `setup-node`, `upload-artifact`, `deploy-pages`, `build-push-action`, `setup-buildx-action`, `setup-qemu-action`).
+
+### Maintenance
+
+* Added Coveralls coverage reporting with enforced thresholds.
+* No changes to the public API, CLI behavior, Docker usage, or validation logic.
+
 ## [3.1.7] - 2026-08-24
 
 ### Changed
