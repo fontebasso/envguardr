@@ -12,8 +12,8 @@ coverage/
 # test output
 .vitest/
 
-# docs build assets (copied by CI)
-docs/logo-envguardr.png
+# docs build output
+_site/
 
 # system files
 .DS_Store
