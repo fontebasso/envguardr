@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### BREAKING
+
+* The schema is now a declarative YAML (or JSON) file with `version: 1`. JavaScript schemas are no longer loaded or executed.
+* Removed `type: 'custom'` validator functions and `validators.awsArn`; use `pattern` instead.
+* Exit code `2` now means the environment could not be validated (usage error, missing, malformed or invalid schema, internal error). Exit code `1` only means an invalid environment.
+* The Docker `latest` tag now points to v4. Pin `docker.io/fontebasso/envguardr:3` to stay on v3.
+
+### Added
+
+* `--format json` with a stable contract: `issues` with `key`, `code` and `message`, or an `error` with `code` and, for schema errors, `path`.
+* Constraints `pattern`, `minLength`, `maxLength`, `format` (`json`, `date`), `min` and `max`, and a per-variable `message`.
+* Strict schema validation: unknown keys, misplaced constraints and defaults that break their own rules are errors.
+* `--version`.
+* Versioned documentation site, with v3 kept at `/v3/`.
+
+### Security
+
+* Environment values are never printed, in any output or error; covered by a property-based test.
+
+### Support
+
+* v3 receives security fixes only, for six months after the release of v4.0.0.
+
 ## [3.1.8] - 2026-10-11
 
 ### Changed
