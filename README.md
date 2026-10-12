@@ -67,7 +67,8 @@ npx envguardr validate ./env.schema.yaml
 Or with Docker, without Node.js:
 
 ```bash
-docker run --rm -v "$PWD:/app:z" -e API_URL -e PORT -e NODE_ENV \
+docker run --rm -v "$PWD/env.schema.yaml:/app/env.schema.yaml:ro,z" \
+  -e API_URL -e PORT -e NODE_ENV \
   docker.io/fontebasso/envguardr:4 validate ./env.schema.yaml
 ```
 

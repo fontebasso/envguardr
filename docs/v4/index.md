@@ -81,7 +81,8 @@ npx envguardr validate ./env.schema.yaml
 Or, without Node.js:
 
 ```bash
-docker run --rm -v "$PWD:/app:z" -e API_URL -e PORT -e NODE_ENV \
+docker run --rm -v "$PWD/env.schema.yaml:/app/env.schema.yaml:ro,z" \
+  -e API_URL -e PORT -e NODE_ENV \
   docker.io/fontebasso/envguardr:4 validate ./env.schema.yaml
 ```
 
@@ -210,10 +211,12 @@ Codes are part of the public contract and only change in a major version.
 
 ```bash
 docker run --rm \
-  --env-file .env \
-  -v "$PWD:/app:z" \
+  -v "$PWD/env.schema.yaml:/app/env.schema.yaml:ro,z" \
+  -e API_URL -e PORT \
   docker.io/fontebasso/envguardr:4 validate ./env.schema.yaml
 ```
+
+Mount only the schema, read-only: the container never needs the rest of your project. The image runs as a non-root user (uid `65532`) and works with `--read-only` and `--cap-drop ALL`. For production, pin the image by digest.
 
 | Platform | Status |
 | --- | --- |
@@ -228,11 +231,13 @@ envguardr has no integrations of its own. These are ways to run it where your va
 
 ```yaml
 - name: Validate environment
-  run: npx envguardr validate ./env.schema.yaml
+  run: npx envguardr@4 validate ./env.schema.yaml
   env:
     API_URL: ${{ vars.API_URL }}
     API_KEY: ${{ secrets.API_KEY }}
 ```
+
+A secret that was never configured reaches the step as an empty string; `required: true` rejects it. Pin the major (`envguardr@4`) so a step that holds secrets never runs an unexpected version.
 
 ### GitLab CI
 
@@ -240,35 +245,66 @@ envguardr has no integrations of its own. These are ways to run it where your va
 validate-env:
   image: node:24
   script:
-    - npx envguardr validate ./env.schema.yaml
+    - npx envguardr@4 validate ./env.schema.yaml
 ```
 
 The envguardr image is distroless and has no shell, so it cannot run a `script:` block.
 
 ### Kubernetes
 
-Run it as an init container with the same variables as the app. If validation fails, the pod never starts and the rollout stops.
+Run it as an init container with the same variables as the app. If validation fails, the init container exits with `1`, the app container never starts and the rollout does not progress. Values stay in the cluster: CI only needs to deploy, not to read secrets.
+
+Store the schema in a ConfigMap:
+
+```bash
+kubectl create configmap env-schema --from-file=env.schema.yaml
+```
+
+Then add the init container, the volume and the same `envFrom` as the app to your Deployment:
 
 ```yaml
-initContainers:
-  - name: envguardr
-    image: docker.io/fontebasso/envguardr:4
-    args: ["validate", "/schema/env.schema.yaml"]
-    envFrom:
-      - configMapRef: { name: app-config }
-      - secretRef: { name: app-secrets }
-    volumeMounts:
-      - { name: env-schema, mountPath: /schema, readOnly: true }
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: envguardr
+          image: docker.io/fontebasso/envguardr:4  # pin by digest in production
+          args: ["validate", "/schema/env.schema.yaml"]
+          envFrom:
+            - configMapRef: { name: app-config }
+            - secretRef: { name: app-secrets }
+          volumeMounts:
+            - { name: env-schema, mountPath: /schema, readOnly: true }
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities: { drop: [ALL] }
+      containers:
+        - name: app
+          # ...your app, with the same envFrom
+      volumes:
+        - name: env-schema
+          configMap: { name: env-schema }
 ```
+
+Read why a pod is waiting with `kubectl logs <pod> -c envguardr`: the output names the variables and rules, never the values.
 
 ### .env files
 
 envguardr does not read `.env` files. Load them with the tool you already use:
 
 ```bash
-npx dotenv-cli -e .env.production -- npx envguardr validate ./env.schema.yaml
-docker run --rm --env-file .env.production -v "$PWD:/app:z" docker.io/fontebasso/envguardr:4 validate ./env.schema.yaml
+npx dotenv-cli -e .env.production -- npx envguardr@4 validate ./env.schema.yaml
 ```
+
+```bash
+docker run --rm --env-file .env.production \
+  -v "$PWD/env.schema.yaml:/app/env.schema.yaml:ro,z" \
+  docker.io/fontebasso/envguardr:4 validate ./env.schema.yaml
+```
+
+Docker's `--env-file` keeps quotes as part of the value: `API_URL="https://api.example.com"` reaches envguardr with the quotes and fails as an invalid URL. Write the file without quotes for Docker, or load it with `dotenv-cli`, which removes them. Since envguardr never prints values, check the file itself when a value that looks right is rejected.
 
 <h2 id="migrating">Migrating from v3</h2>
 
