@@ -38,11 +38,10 @@
     "validate": "tsx bin/cli.ts validate ./tests/fixtures/app.schema.yaml",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "fuzz:validate-env": "node fuzz/validate-env.fuzz.js",
-    "fuzz:custom-validators": "node fuzz/validate-env-custom-validators.fuzz.js",
-    "fuzz:schema": "node fuzz/validate-env-schema.fuzz.js",
-    "fuzz:edge-cases": "node fuzz/validate-env-edge-cases.fuzz.js",
-    "fuzz": "npm run build && node fuzz/validate-env.fuzz.js && node fuzz/validate-env-custom-validators.fuzz.js && node fuzz/validate-env-schema.fuzz.js && node fuzz/validate-env-edge-cases.fuzz.js"
+    "fuzz:validate": "node fuzz/validate.fuzz.js",
+    "fuzz:schema": "node fuzz/schema.fuzz.js",
+    "fuzz:yaml": "node fuzz/yaml.fuzz.js",
+    "fuzz": "npm run build && node fuzz/validate.fuzz.js && node fuzz/schema.fuzz.js && node fuzz/yaml.fuzz.js"
   },
   "bin": {
     "envguardr": "./dist/bin/cli.js"

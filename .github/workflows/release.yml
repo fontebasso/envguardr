@@ -69,52 +69,63 @@ jobs:
       - name: Smoke test Docker image
         run: docker run --rm envguardr:preflight --help
 
-      - name: Test Docker image with valid schema
+      - name: Test Docker image with valid environment
         run: |
           mkdir -p /tmp/envguardr-smoke
-          cat > /tmp/envguardr-smoke/env.schema.js <<'EOF'
-          import { validators } from 'valitype'
-          export default {
-            API_URL: { type: 'url', required: true },
-            PORT: { type: 'number', required: true },
-            NODE_ENV: { type: { enum: ['development', 'production', 'test'] }, default: 'production' },
-            API_KEY: {
-              type: 'custom',
-              validator: validators.regex(/^[A-Za-z0-9]{32}$/),
-              required: true,
-            },
-          }
-          EOF
+          cat > /tmp/envguardr-smoke/env.schema.yaml <<'YAML'
+          version: 1
+          variables:
+            API_URL:
+              type: url
+              required: true
+            PORT:
+              type: number
+              required: true
+            NODE_ENV:
+              type: enum
+              values: [development, production, test]
+              default: production
+            API_KEY:
+              type: string
+              required: true
+          YAML
           docker run --rm \
             -v /tmp/envguardr-smoke:/app:z \
             -e API_URL=https://example.com \
             -e PORT=3000 \
             -e NODE_ENV=production \
             -e API_KEY=0123456789abcdef0123456789abcdef \
-            envguardr:preflight validate ./env.schema.js
+            envguardr:preflight validate ./env.schema.yaml
+
+      - name: Test Docker image with invalid environment
+        run: |
+          set +e
+          docker run --rm \
+            -v /tmp/envguardr-smoke:/app:z \
+            -e API_URL=not-a-url \
+            -e PORT=abc \
+            envguardr:preflight validate ./env.schema.yaml --format json
+          STATUS=$?
+          set -e
+          if [ "$STATUS" -ne 1 ]; then
+            echo "Expected exit code 1 for an invalid environment, got $STATUS"
+            exit 1
+          fi
 
       - name: Test Docker image with invalid schema
         run: |
           mkdir -p /tmp/envguardr-smoke-invalid
-          cat > /tmp/envguardr-smoke-invalid/env.schema.js <<'EOF'
-          export default {
-            API_URL: { type: 'url', required: true },
-            PORT: { type: 'number', required: true },
-          }
-          EOF
+          printf 'version: 1\nvariables:\n  PORT:\n    type: number\n    requred: true\n' > /tmp/envguardr-smoke-invalid/env.schema.yaml
           set +e
           docker run --rm \
             -v /tmp/envguardr-smoke-invalid:/app:z \
-            -e API_URL=not-a-url \
-            -e PORT=abc \
-            envguardr:preflight validate ./env.schema.js
+            envguardr:preflight validate ./env.schema.yaml
           STATUS=$?
           set -e
-          if [ "$STATUS" -eq 0 ]; then
-            echo "Expected envguardr to fail with invalid environment variables"
+          if [ "$STATUS" -ne 2 ]; then
+            echo "Expected exit code 2 for an invalid schema, got $STATUS"
             exit 1
           fi
-          echo "Invalid environment test failed as expected"
 
   publish-npm:
     needs: preflight
