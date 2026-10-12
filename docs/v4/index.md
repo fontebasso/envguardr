@@ -312,12 +312,40 @@ Docker's `--env-file` keeps quotes as part of the value: `API_URL="https://api.e
 | --- | --- |
 | `type: { enum: [...] }` | `type: enum` + `values: [...]` |
 | `validators.regex(/re/)` | `pattern: 're'` (RE2 syntax: rewrite lookahead and backreferences) |
+| `validators.regex(/re/i)`, `/m`, `/s` | `pattern: '(?i)re'`, `(?m)`, `(?s)`: flags go at the start of the pattern |
 | `validators.range(a, b)` | `min: a`, `max: b` |
 | `validators.oneOf([...])` | `type: enum` + `values: [...]` |
 | `validators.json()` | `format: json` |
 | `validators.date('YYYY-MM-DD')` | `format: date` |
 | `validators.awsArn(...)` | `pattern: '^arn:aws:...'` |
+| `validators.all(a, b, ...)` | Several constraints on the same variable: all must pass, and the first failure is reported |
 | `type: 'custom'` with a function | No equivalent: use `pattern`, or stay on v3 |
+
+For example, this v3 schema:
+
+```js
+API_KEY: {
+  type: 'custom',
+  validator: validators.all(
+    validators.regex(/^sk_[a-z0-9]+$/i),
+    validators.regex(/^.{20,40}$/),
+  ),
+  required: true,
+},
+```
+
+becomes:
+
+```yaml
+API_KEY:
+  type: string
+  required: true
+  pattern: '(?i)^sk_[a-z0-9]+$'
+  minLength: 20
+  maxLength: 40
+```
+
+Write the pattern without the JavaScript slashes: `'/^a$/i'` is a valid pattern that looks for the literal text `/a/i` and will reject your values. There is no global flag (`g`); it has no meaning when validating a single value.
 
 Other changes:
 
