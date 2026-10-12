@@ -45,7 +45,7 @@
     "envguardr": "./dist/bin/cli.js"
   },
   "files": [
-    "dist/"
+    "dist/bin/"
   ],
   "directories": {
     "test": "tests"
