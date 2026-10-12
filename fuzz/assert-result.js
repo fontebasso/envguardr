@@ -1,35 +1,32 @@
 export function assertResult(result) {
   if (typeof result !== "object" || result === null) {
-    throw new Error("validateEnv returned a non-object result");
+    throw new Error("validate returned a non-object result");
   }
 
   if (typeof result.ok !== "boolean") {
-    throw new Error("validateEnv returned invalid ok value");
+    throw new Error("validate returned invalid ok value");
   }
 
   if (!Array.isArray(result.issues)) {
-    throw new Error("validateEnv returned invalid issues value");
+    throw new Error("validate returned invalid issues value");
   }
 
-  if (result.ok && result.issues.length > 0) {
-    throw new Error("ok is true but issues is not empty");
-  }
-
-  if (!result.ok && result.issues.length === 0) {
-    throw new Error("ok is false but issues is empty");
+  if (result.ok !== (result.issues.length === 0)) {
+    throw new Error("ok does not match issues");
   }
 
   for (const issue of result.issues) {
-    if (typeof issue.key !== "string") {
-      throw new Error("validateEnv returned issue with invalid key");
+    for (const field of ["key", "code", "message"]) {
+      if (typeof issue[field] !== "string") {
+        throw new Error(`validate returned issue with invalid ${field}`);
+      }
     }
+  }
+}
 
-    if (typeof issue.message !== "string") {
-      throw new Error("validateEnv returned issue with invalid message");
-    }
-
-    if (issue.kind !== "validation") {
-      throw new Error(`validateEnv returned unexpected issue kind: ${issue.kind}`);
-    }
+// Each bundle in dist/ has its own EnvguardrError class, so match by name.
+export function assertEnvguardrError(err, code) {
+  if (err?.name !== "EnvguardrError" || err.code !== code) {
+    throw err;
   }
 }

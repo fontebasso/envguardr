@@ -63,6 +63,19 @@ describe("renderPage", () => {
     expect(html).not.toContain("{{");
   });
 
+  it("resolves base paths inside markdown links", () => {
+    const html = renderPage({
+      template: TEMPLATE,
+      markdown: "See [v3]({{base}}v3/) and [home]({{base}}).",
+      version: "4",
+      versions: VERSIONS,
+      base: "../",
+    });
+
+    expect(html).toContain('<a href="../v3/">v3</a>');
+    expect(html).toContain('<a href="../">home</a>');
+  });
+
   it("shows a banner linking to the latest version on older versions", () => {
     const html = renderPage({
       template: TEMPLATE,

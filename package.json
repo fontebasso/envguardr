@@ -1,12 +1,9 @@
 {
   "name": "envguardr",
-  "description": "Fail-fast environment variable validation for Node.js, CI/CD, and bad deploy prevention.",
+  "description": "Validate environment variables against a declarative YAML schema in any language, CI or deploy, without ever printing their values.",
   "keywords": [
     "cli",
-    "nodejs",
     "env",
-    "dotenv",
-    "process-env",
     "environment",
     "environment-variables",
     "validation",
@@ -14,14 +11,15 @@
     "schema",
     "config",
     "runtime-config",
-    "typescript",
-    "javascript",
     "ci",
     "cd",
     "cicd",
     "devops",
     "docker",
-    "fail-fast"
+    "fail-fast",
+    "yaml",
+    "kubernetes",
+    "secrets"
   ],
   "version": "3.1.8",
   "private": false,
@@ -35,20 +33,19 @@
     "format": "prettier --write ./src ./tests",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "validate": "tsx bin/cli.ts validate ./tests/fixtures/env.schema.ts",
+    "validate": "tsx bin/cli.ts validate ./tests/fixtures/app.schema.yaml",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "fuzz:validate-env": "node fuzz/validate-env.fuzz.js",
-    "fuzz:custom-validators": "node fuzz/validate-env-custom-validators.fuzz.js",
-    "fuzz:schema": "node fuzz/validate-env-schema.fuzz.js",
-    "fuzz:edge-cases": "node fuzz/validate-env-edge-cases.fuzz.js",
-    "fuzz": "npm run build && node fuzz/validate-env.fuzz.js && node fuzz/validate-env-custom-validators.fuzz.js && node fuzz/validate-env-schema.fuzz.js && node fuzz/validate-env-edge-cases.fuzz.js"
+    "fuzz:validate": "node fuzz/validate.fuzz.js",
+    "fuzz:schema": "node fuzz/schema.fuzz.js",
+    "fuzz:yaml": "node fuzz/yaml.fuzz.js",
+    "fuzz": "npm run build && node fuzz/validate.fuzz.js && node fuzz/schema.fuzz.js && node fuzz/yaml.fuzz.js"
   },
   "bin": {
     "envguardr": "./dist/bin/cli.js"
   },
   "files": [
-    "dist/"
+    "dist/bin/"
   ],
   "directories": {
     "test": "tests"
@@ -68,7 +65,9 @@
   },
   "homepage": "https://github.com/fontebasso/envguardr#readme",
   "dependencies": {
-    "valitype": "3.0.0"
+    "re2js": "^2.8.6",
+    "valitype": "3.0.0",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",

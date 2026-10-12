@@ -12,5 +12,7 @@ COPY --from=builder /app/dist /dist
 COPY --from=builder /app/node_modules /node_modules
 COPY --from=builder /app/package.json /package.json
 WORKDIR /app
+# distroless "nonroot" user
+USER 65532:65532
 ENTRYPOINT ["/nodejs/bin/node", "/dist/bin/cli.js"]
 CMD ["--help"]

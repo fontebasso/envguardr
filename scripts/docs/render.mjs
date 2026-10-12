@@ -23,7 +23,8 @@ function banner(versions, current, base) {
 }
 
 export function renderPage({ template, markdown, version, versions, base }) {
-  const content = fill(marked.parse(markdown), "{{base}}", base);
+  // Before parsing: marked URL-encodes "{{base}}" inside markdown links.
+  const content = marked.parse(fill(markdown, "{{base}}", base));
   let html = fill(template, "{{base}}", base);
   html = fill(html, "{{versions}}", versionsNav(versions, version, base));
   html = fill(html, "{{banner}}", banner(versions, version, base));
