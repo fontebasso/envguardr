@@ -35,7 +35,7 @@
     "format": "prettier --write ./src ./tests",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "validate": "tsx bin/cli.ts validate ./tests/fixtures/env.schema.ts",
+    "validate": "tsx bin/cli.ts validate ./tests/fixtures/app.schema.yaml",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "fuzz:validate-env": "node fuzz/validate-env.fuzz.js",

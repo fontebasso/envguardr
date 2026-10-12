@@ -1,4 +1,8 @@
 #!/usr/bin/env node
-import { runCli } from '../src/cliHandler.js'
-runCli(process.argv)
+import { run } from '../src/cli.js'
 
+process.exitCode = await run(process.argv.slice(2), {
+  env: process.env,
+  stdout: (text) => process.stdout.write(text),
+  stderr: (text) => process.stderr.write(text),
+})
