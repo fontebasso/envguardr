@@ -42,7 +42,7 @@
     "fuzz": "npm run build && node fuzz/validate.fuzz.js && node fuzz/schema.fuzz.js && node fuzz/yaml.fuzz.js"
   },
   "bin": {
-    "envguardr": "./dist/bin/cli.js"
+    "envguardr": "dist/bin/cli.js"
   },
   "files": [
     "dist/bin/"
