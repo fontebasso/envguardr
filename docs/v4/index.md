@@ -152,6 +152,8 @@ Every variable also accepts:
 - A `default` must satisfy the variable's own rules; otherwise the schema is invalid.
 - The schema is strict: unknown keys, constraints that do not belong to the type and invalid values are errors (exit `2`), never ignored.
 - YAML 1.2 is used, so `yes`, `no`, `on` and `off` are plain strings.
+- A `number` default is a YAML number: `0x10` means `16`. Write it as a plain decimal; exponent forms such as `1e21` are rejected.
+- Anchors and aliases are allowed; merge keys (`<<`) are not.
 
 ## Output and exit codes
 
