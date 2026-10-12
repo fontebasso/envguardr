@@ -7,6 +7,7 @@ import type { Schema, Variable, VariableType } from "./types.js";
 type Mapping = Record<string, unknown>;
 
 const VARIABLE_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const DECIMAL = /^-?\d+(\.\d+)?$/;
 const TYPES: readonly VariableType[] = ["string", "number", "boolean", "url", "enum"];
 const COMMON_KEYS = ["type", "required", "default", "message"];
 const TYPE_KEYS: Record<VariableType, readonly string[]> = {
@@ -85,6 +86,8 @@ function buildVariable(name: string, definition: unknown): Variable {
   const path = `variables.${name}`;
   if (!VARIABLE_NAME.test(name)) invalid("variables", `Invalid variable name '${name}'`);
   if (!isMapping(definition)) invalid(path, "Variable definition must be a mapping");
+  // YAML 1.2 has no merge keys: "<<" arrives as a plain key.
+  if (hasOwn(definition, "<<")) invalid(path, "Merge keys (<<) are not supported; repeat the keys instead");
   if (!hasOwn(definition, "type")) invalid(path, "Missing required key 'type'");
 
   const type = definition.type;
@@ -143,7 +146,12 @@ function buildVariable(name: string, definition: unknown): Variable {
 function parseDefault(definition: Mapping, type: VariableType, path: string): string | undefined {
   if (type === "number") {
     const value = optional(definition, "default", path, isFiniteNumber, "a number");
-    return value === undefined ? undefined : String(value);
+    if (value === undefined) return undefined;
+    // 1e21 and 0.0000001 print in exponent form, which number values reject.
+    if (!DECIMAL.test(String(value))) {
+      invalid(`${path}.default`, "'default' must be a plain decimal number");
+    }
+    return String(value);
   }
   if (type === "boolean") {
     const value = optional(definition, "default", path, isBoolean, "a boolean");
@@ -155,6 +163,12 @@ function parseDefault(definition: Mapping, type: VariableType, path: string): st
 function parseValues(definition: Mapping, path: string): string[] {
   if (!hasOwn(definition, "values")) invalid(path, "Missing required key 'values'");
   const values = definition.values;
+  if (Array.isArray(values) && values.some((value) => typeof value === "number")) {
+    invalid(
+      `${path}.values`,
+      "'values' must be a non-empty list of strings (quote numbers, e.g. values: ['1', '2'])",
+    );
+  }
   if (!Array.isArray(values) || values.length === 0 || !values.every(isString)) {
     invalid(`${path}.values`, "'values' must be a non-empty list of strings");
   }

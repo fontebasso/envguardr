@@ -37,8 +37,9 @@ describe("parseSchemaText", () => {
     expect(parseSchemaText("a: yes\nb: [on, off]\n")).toEqual({ a: "yes", b: ["on", "off"] });
   });
 
-  it("rejects an empty file", () => {
-    expectError(() => parseSchemaText(""), "SCHEMA_PARSE_ERROR", "Schema must contain exactly one YAML document");
+  it("rejects an empty or comment-only file", () => {
+    expectError(() => parseSchemaText(""), "SCHEMA_PARSE_ERROR", "Schema file is empty");
+    expectError(() => parseSchemaText("# nothing here\n"), "SCHEMA_PARSE_ERROR", "Schema file is empty");
   });
 
   it("rejects multiple documents", () => {
@@ -74,13 +75,18 @@ describe("parseSchemaText", () => {
     expectError(() => parseSchemaText(bomb), "SCHEMA_PARSE_ERROR", "Schema uses too many aliases");
   });
 
-  it("reports only the first line of the parser message", () => {
-    try {
-      parseSchemaText("a: 1\na: 2\n");
-    } catch (err) {
-      expect((err as Error).message).not.toContain("\n");
-    }
-  });
+  it.each(["a: 1\na: 2\n", "a: !foo bar\n"])(
+    "reports only the first line of the parser message, without a trailing colon (%j)",
+    (text) => {
+      expect.assertions(2);
+      try {
+        parseSchemaText(text);
+      } catch (err) {
+        expect((err as Error).message).not.toContain("\n");
+        expect((err as Error).message).not.toMatch(/:$/);
+      }
+    },
+  );
 });
 
 describe("loadSchemaFile", () => {

@@ -24,14 +24,18 @@ export async function loadSchemaFile(path: string): Promise<unknown> {
 
 export function parseSchemaText(text: string): unknown {
   const documents = parseAllDocuments(text, YAML_OPTIONS);
-  if (documents.length !== 1) {
+  if (documents.length === 0) {
+    throw new EnvguardrError("SCHEMA_PARSE_ERROR", "Schema file is empty");
+  }
+  if (documents.length > 1) {
     throw new EnvguardrError("SCHEMA_PARSE_ERROR", "Schema must contain exactly one YAML document");
   }
 
   const [document] = documents;
   const problem = document.errors[0] ?? document.warnings[0];
   if (problem) {
-    throw new EnvguardrError("SCHEMA_PARSE_ERROR", problem.message.split("\n")[0]);
+    // First line only (the rest is a source excerpt), without its trailing colon.
+    throw new EnvguardrError("SCHEMA_PARSE_ERROR", problem.message.split("\n")[0].replace(/:$/, ""));
   }
 
   try {

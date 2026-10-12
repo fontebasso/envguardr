@@ -158,7 +158,20 @@ describe("parseSchema: invalid schemas", () => {
     ["min above max", schemaWith({ type: "number", min: 10, max: 1 }), "variables.X", "'min' must be less than or equal to 'max'"],
     ["enum without values", schemaWith({ type: "enum" }), "variables.X", "Missing required key 'values'"],
     ["enum with empty values", schemaWith({ type: "enum", values: [] }), "variables.X.values", "'values' must be a non-empty list of strings"],
-    ["enum with numeric values", schemaWith({ type: "enum", values: [1, 2] }), "variables.X.values", "'values' must be a non-empty list of strings"],
+    [
+      "enum with numeric values",
+      schemaWith({ type: "enum", values: [1, 2] }),
+      "variables.X.values",
+      "'values' must be a non-empty list of strings (quote numbers, e.g. values: ['1', '2'])",
+    ],
+    ["number default in exponent form", schemaWith({ type: "number", default: 1e21 }), "variables.X.default", "'default' must be a plain decimal number"],
+    ["number default that prints in exponent form", schemaWith({ type: "number", default: 0.0000001 }), "variables.X.default", "'default' must be a plain decimal number"],
+    [
+      "YAML merge key",
+      parseSchemaText("version: 1\nvariables:\n  A: &a {type: string}\n  B: {<<: *a, required: true}\n"),
+      "variables.B",
+      "Merge keys (<<) are not supported; repeat the keys instead",
+    ],
     ["enum values as string", schemaWith({ type: "enum", values: "a" }), "variables.X.values", "'values' must be a non-empty list of strings"],
     ["enum with duplicates", schemaWith({ type: "enum", values: ["a", "a"] }), "variables.X.values", "'values' must not contain duplicates"],
   ])("%s", (_, raw, path, message) => {
@@ -177,11 +190,6 @@ describe("parseSchema: default must satisfy the variable rules", () => {
       "url default with another protocol",
       schemaWith({ type: "url", default: "ftp://example.com" }),
       "'default' does not satisfy the variable rules: X must be a valid URL",
-    ],
-    [
-      "number default that does not print as a decimal",
-      schemaWith({ type: "number", default: 1e21 }),
-      "'default' does not satisfy the variable rules: X must be a valid number",
     ],
     [
       "number default below min",
