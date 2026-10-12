@@ -10,6 +10,15 @@ type Step = { code?: string; rule: Rule };
 export function evaluate(variable: Variable, value: string | undefined): Issue | null {
   const effective = value ?? variable.default;
 
+  // An empty secret is the usual way a "set" variable is actually missing.
+  if (variable.required && effective === "") {
+    return {
+      key: variable.name,
+      code: "REQUIRED",
+      message: variable.message ?? `${variable.name} is required and must not be empty`,
+    };
+  }
+
   for (const { code, rule } of steps(variable)) {
     try {
       validateValue(variable.name, effective, rule);

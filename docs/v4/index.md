@@ -141,13 +141,14 @@ Every variable also accepts:
 
 | Key | Meaning |
 | --- | --- |
-| `required` | `true` makes a missing variable an error. Defaults to `false`. |
+| `required` | `true` makes a missing or empty variable an error. Defaults to `false`. |
 | `default` | Value used when the variable is missing. Cannot be combined with `required: true`. |
 | `message` | Fixed text that replaces the error message for this variable. |
 
 ### Rules
 
-- A variable is missing only when it is not set at all. `VAR=` (empty) is set and is validated.
+- A required variable must be set and not empty: `VAR=` fails with `REQUIRED`, which catches a CI secret that was never configured.
+- An optional variable set to empty (`VAR=`) is validated like any other value.
 - A missing optional variable without a `default` is not validated.
 - A `default` must satisfy the variable's own rules; otherwise the schema is invalid.
 - The schema is strict: unknown keys, constraints that do not belong to the type and invalid values are errors (exit `2`), never ignored.

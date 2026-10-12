@@ -34,8 +34,21 @@ describe("evaluate: types", () => {
     });
   });
 
-  it("treats an empty string as present", () => {
-    expect(evaluate(variable({ type: "string", required: true }), "")).toBeNull();
+  it("rejects an empty value when the variable is required", () => {
+    expect(evaluate(variable({ type: "string", required: true }), "")).toEqual({
+      key: "X",
+      code: "REQUIRED",
+      message: "X is required and must not be empty",
+    });
+    expect(evaluate(variable({ type: "enum", values: ["a"], required: true, message: "Set X" }), "")).toEqual({
+      key: "X",
+      code: "REQUIRED",
+      message: "Set X",
+    });
+  });
+
+  it("validates an empty value by type when the variable is optional", () => {
+    expect(evaluate(variable({ type: "string" }), "")).toBeNull();
     expect(evaluate(variable({ type: "number" }), "")).toMatchObject({ code: "INVALID_NUMBER" });
   });
 
