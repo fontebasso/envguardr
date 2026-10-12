@@ -132,7 +132,7 @@ variables:
 
 | Constraint | Meaning |
 | --- | --- |
-| `pattern` | JavaScript regular expression. Not anchored: use `^...$` to match the whole value. |
+| `pattern` | [RE2](https://github.com/google/re2/wiki/Syntax) regular expression, the same dialect as Go. Runs in linear time and supports Unicode classes like `\p{L}`; lookahead and backreferences are not supported. Not anchored: use `^...$` to match the whole value. |
 | `minLength`, `maxLength` | Inclusive, counted in Unicode characters. |
 | `format` | `json` (valid JSON text) or `date` (a real calendar date, `YYYY-MM-DD`). |
 | `min`, `max` | Inclusive. |
@@ -271,7 +271,7 @@ docker run --rm --env-file .env.production -v "$PWD:/app:z" docker.io/fontebasso
 | v3 (`env.schema.js`) | v4 (`env.schema.yaml`) |
 | --- | --- |
 | `type: { enum: [...] }` | `type: enum` + `values: [...]` |
-| `validators.regex(/re/)` | `pattern: 're'` |
+| `validators.regex(/re/)` | `pattern: 're'` (RE2 syntax: rewrite lookahead and backreferences) |
 | `validators.range(a, b)` | `min: a`, `max: b` |
 | `validators.oneOf([...])` | `type: enum` + `values: [...]` |
 | `validators.json()` | `format: json` |

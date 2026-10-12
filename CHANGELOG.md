@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `--format json` with a stable contract: `issues` with `key`, `code` and `message`, or an `error` with `code` and, for schema errors, `path`.
 * Constraints `pattern`, `minLength`, `maxLength`, `format` (`json`, `date`), `min` and `max`, and a per-variable `message`.
+* `pattern` uses RE2 syntax (via `re2js`): linear time, Unicode classes such as `\p{L}`, no lookahead or backreferences.
 * Strict schema validation: unknown keys, misplaced constraints and defaults that break their own rules are errors.
 * `--version`.
 * Versioned documentation site, with v3 kept at `/v3/`.

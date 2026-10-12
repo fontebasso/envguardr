@@ -143,6 +143,8 @@ describe("parseSchema: invalid schemas", () => {
     ],
     ["pattern not a string", schemaWith({ type: "string", pattern: 1 }), "variables.X.pattern", "'pattern' must be a string"],
     ["pattern does not compile", schemaWith({ type: "string", pattern: "(" }), "variables.X.pattern", "'pattern' is not a valid regular expression"],
+    ["pattern with lookahead (not RE2)", schemaWith({ type: "string", pattern: "^(?=a)a$" }), "variables.X.pattern", "'pattern' is not a valid regular expression"],
+    ["pattern with backreference (not RE2)", schemaWith({ type: "string", pattern: "(a)\\1" }), "variables.X.pattern", "'pattern' is not a valid regular expression"],
     ["negative minLength", schemaWith({ type: "string", minLength: -1 }), "variables.X.minLength", "'minLength' must be a non-negative integer"],
     ["fractional maxLength", schemaWith({ type: "string", maxLength: 1.5 }), "variables.X.maxLength", "'maxLength' must be a non-negative integer"],
     [

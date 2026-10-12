@@ -75,6 +75,7 @@ describe("evaluate: constraints", () => {
   it.each([
     [{ type: "string", pattern: "^[a-z]+$" }, "abc"],
     [{ type: "string", pattern: "a" }, "xax"],
+    [{ type: "string", pattern: "^\\p{L}+$" }, "Ção"],
     [{ type: "string", minLength: 3, maxLength: 3 }, "😀😀😀"],
     [{ type: "string", format: "json" }, '{"a":1}'],
     [{ type: "string", format: "date" }, "2024-02-29"],

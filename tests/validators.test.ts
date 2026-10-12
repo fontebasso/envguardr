@@ -1,5 +1,27 @@
 import { describe, it, expect } from "vitest";
-import { calendarDate, lengthAtLeast, lengthAtMost } from "../src/validators";
+import { calendarDate, lengthAtLeast, lengthAtMost, matchesPattern } from "../src/validators";
+
+describe("matchesPattern (RE2)", () => {
+  it("searches without implicit anchors", () => {
+    expect(matchesPattern("a", "no match")("xax")).toBe(true);
+    expect(matchesPattern("^a$", "no match")("xax")).toBe("no match");
+  });
+
+  it("supports Unicode classes without flags", () => {
+    expect(matchesPattern("^\\p{L}+$", "no match")("Ção")).toBe(true);
+    expect(matchesPattern("^\\p{L}+$", "no match")("123")).toBe("no match");
+  });
+
+  it("runs in linear time on patterns that backtrack in JavaScript", () => {
+    const started = Date.now();
+    expect(matchesPattern("^(a+)+$", "no match")(`${"a".repeat(50_000)}!`)).toBe("no match");
+    expect(Date.now() - started).toBeLessThan(1000);
+  });
+
+  it("accepts an absent value", () => {
+    expect(matchesPattern("^a$", "no match")(undefined)).toBe(true);
+  });
+});
 
 describe("lengthAtLeast / lengthAtMost", () => {
   it("count code points, not UTF-16 units", () => {

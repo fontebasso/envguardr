@@ -1,3 +1,4 @@
+import { RE2JS } from "re2js";
 import { evaluate } from "../engine.js";
 import { EnvguardrError } from "../errors.js";
 import { hasOwn } from "../own.js";
@@ -165,7 +166,7 @@ function parseValues(definition: Mapping, path: string): string[] {
 
 function assertPatternCompiles(pattern: string, path: string): void {
   try {
-    new RegExp(pattern);
+    RE2JS.compile(pattern);
   } catch {
     invalid(path, "'pattern' is not a valid regular expression");
   }

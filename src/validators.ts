@@ -1,8 +1,17 @@
+import { RE2JS } from "re2js";
 import type { CustomValidatorFn } from "valitype";
 
 // Validators that valitype 3 does not provide (or provides too loosely).
 
 const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+// RE2 instead of RegExp: linear time (no catastrophic backtracking on values
+// from the environment), Unicode classes without flags, and the same dialect
+// as Go and Rust. Not anchored, like RegExp.test.
+export function matchesPattern(pattern: string, message: string): CustomValidatorFn {
+  const re = RE2JS.compile(pattern);
+  return (value) => value === undefined || re.matcher(value).find() || message;
+}
 
 // valitype 3 has no length validator. Count code points, not UTF-16 units.
 export function lengthAtLeast(min: number, message: string): CustomValidatorFn {

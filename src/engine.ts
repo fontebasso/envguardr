@@ -1,7 +1,7 @@
 import { validateValue, validators, ValidationError } from "valitype";
 import type { CustomValidatorFn, Rule } from "valitype";
 import type { Variable } from "./schema/types.js";
-import { calendarDate, lengthAtLeast, lengthAtMost } from "./validators.js";
+import { calendarDate, lengthAtLeast, lengthAtMost, matchesPattern } from "./validators.js";
 
 export type Issue = { key: string; code: string; message: string };
 
@@ -36,7 +36,7 @@ function steps(variable: Variable): Step[] {
   if (variable.type === "string") {
     const { pattern, minLength, maxLength, format } = variable;
     if (pattern !== undefined) {
-      add("PATTERN_MISMATCH", validators.regex(new RegExp(pattern), `${name} must match the pattern ${pattern}`));
+      add("PATTERN_MISMATCH", matchesPattern(pattern, `${name} must match the pattern ${pattern}`));
     }
     if (minLength !== undefined) {
       add("TOO_SHORT", lengthAtLeast(minLength, `${name} must be at least ${minLength} characters long`));
