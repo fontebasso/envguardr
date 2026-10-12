@@ -1,3 +1,4 @@
+import { evaluate } from "../engine.js";
 import { EnvguardrError } from "../errors.js";
 import { hasOwn } from "../own.js";
 import type { Schema, Variable, VariableType } from "./types.js";
@@ -66,6 +67,20 @@ export function parseSchema(raw: unknown): Schema {
 }
 
 function parseVariable(name: string, definition: unknown): Variable {
+  const variable = buildVariable(name, definition);
+  if (variable.default !== undefined) {
+    const issue = evaluate(variable, variable.default);
+    if (issue) {
+      invalid(
+        `variables.${name}.default`,
+        `'default' does not satisfy the variable rules: ${issue.message}`,
+      );
+    }
+  }
+  return variable;
+}
+
+function buildVariable(name: string, definition: unknown): Variable {
   const path = `variables.${name}`;
   if (!VARIABLE_NAME.test(name)) invalid("variables", `Invalid variable name '${name}'`);
   if (!isMapping(definition)) invalid(path, "Variable definition must be a mapping");

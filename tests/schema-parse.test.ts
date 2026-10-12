@@ -163,3 +163,46 @@ describe("parseSchema: invalid schemas", () => {
     expectInvalid(raw, path, message);
   });
 });
+
+describe("parseSchema: default must satisfy the variable rules", () => {
+  it.each([
+    [
+      "enum default outside values",
+      schemaWith({ type: "enum", values: ["a", "b"], default: "c" }),
+      "'default' does not satisfy the variable rules: X must be one of: a, b",
+    ],
+    [
+      "url default with another protocol",
+      schemaWith({ type: "url", default: "ftp://example.com" }),
+      "'default' does not satisfy the variable rules: X must be a valid URL",
+    ],
+    [
+      "number default that does not print as a decimal",
+      schemaWith({ type: "number", default: 1e21 }),
+      "'default' does not satisfy the variable rules: X must be a valid number",
+    ],
+    [
+      "number default below min",
+      schemaWith({ type: "number", default: 0, min: 1 }),
+      "'default' does not satisfy the variable rules: X must be greater than or equal to 1",
+    ],
+    [
+      "string default shorter than minLength",
+      schemaWith({ type: "string", default: "abc", minLength: 5 }),
+      "'default' does not satisfy the variable rules: X must be at least 5 characters long",
+    ],
+    [
+      "custom message",
+      schemaWith({ type: "url", default: "ftp://example.com", message: "X must use https" }),
+      "'default' does not satisfy the variable rules: X must use https",
+    ],
+  ])("%s", (_, raw, message) => {
+    expectInvalid(raw, "variables.X.default", message);
+  });
+
+  it("accepts a default that satisfies the constraints", () => {
+    expect(parseSchema(schemaWith({ type: "number", default: 3000, min: 1, max: 65535 })).variables[0]).toMatchObject({
+      default: "3000",
+    });
+  });
+});
