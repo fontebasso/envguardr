@@ -20,6 +20,8 @@ jobs:
 
     outputs:
       version: ${{ steps.version.outputs.version }}
+      latest: ${{ steps.channel.outputs.latest }}
+      npm-tag: ${{ steps.channel.outputs.npm-tag }}
 
     steps:
       - name: Checkout code
@@ -50,6 +52,15 @@ jobs:
         with:
           node-version: 24
           registry-url: 'https://registry.npmjs.org/'
+
+      - name: Resolve release channel
+        id: channel
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Fails the release if npm cannot be reached, instead of assuming "latest".
+          CURRENT_LATEST="$(npm view envguardr dist-tags.latest)"
+          node scripts/release/channel-outputs.mjs "$VERSION" "$CURRENT_LATEST" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
         run: npm ci
@@ -169,7 +180,9 @@ jobs:
         run: npm run build
 
       - name: Publish with provenance and signature
-        run: npm publish --access public
+        env:
+          NPM_TAG: ${{ needs.preflight.outputs.npm-tag }}
+        run: npm publish --access public --tag "$NPM_TAG"
 
   publish-docker:
     needs: preflight
@@ -200,11 +213,14 @@ jobs:
           images: |
             docker.io/fontebasso/envguardr
             ghcr.io/fontebasso/envguardr
+          # "latest" only for the newest release; never added automatically.
+          flavor: |
+            latest=false
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=raw,value=latest
+            type=raw,value=latest,enable=${{ needs.preflight.outputs.latest == 'true' }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
