@@ -1,0 +1,37 @@
+version: 1
+
+variables:
+  A_STRING:
+    type: string
+  A_NUMBER:
+    type: number
+  A_BOOLEAN:
+    type: boolean
+  A_URL:
+    type: url
+  A_ENUM:
+    type: enum
+    values: [alpha, beta]
+  A_REQUIRED:
+    type: number
+    required: true
+  A_MESSAGE:
+    type: url
+    message: A_MESSAGE must be an https URL
+  A_PATTERN:
+    type: string
+    pattern: '^[a-z]+$'
+  A_LENGTH:
+    type: string
+    minLength: 3
+    maxLength: 5
+  A_RANGE:
+    type: number
+    min: 1
+    max: 10
+  A_JSON:
+    type: string
+    format: json
+  A_DATE:
+    type: string
+    format: date
