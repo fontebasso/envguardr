@@ -100,15 +100,20 @@ jobs:
       - name: Test Docker image with invalid environment
         run: |
           set +e
-          docker run --rm \
+          OUTPUT=$(docker run --rm \
             -v /tmp/envguardr-smoke:/app:z \
-            -e API_URL=not-a-url \
-            -e PORT=abc \
-            envguardr:preflight validate ./env.schema.yaml --format json
+            -e API_URL=leak-check-url \
+            -e PORT=leak-check-port \
+            envguardr:preflight validate ./env.schema.yaml --format json 2>&1)
           STATUS=$?
           set -e
+          echo "$OUTPUT"
           if [ "$STATUS" -ne 1 ]; then
             echo "Expected exit code 1 for an invalid environment, got $STATUS"
+            exit 1
+          fi
+          if echo "$OUTPUT" | grep -q leak-check; then
+            echo "Environment values leaked into the output"
             exit 1
           fi
 
