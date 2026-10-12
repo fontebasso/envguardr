@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [4.0.0] - 2026-10-12
 
 ### BREAKING
 
@@ -25,9 +25,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `--version`.
 * Versioned documentation site, with v3 kept at `/v3/`.
 
+### Changed
+
+* The npm package now ships only the CLI binary (`dist/bin/`).
+* Updated `typescript-eslint` to `8.71.1`, `brace-expansion` to `5.0.12` and the `ossf/scorecard-action` pin to `v2.5.0`.
+
 ### Security
 
-* Environment values are never printed, in any output or error; covered by a property-based test.
+* Environment values are never printed, in any output or error; covered by a property-based test, including every exit `2` path.
+* The Docker image runs as the distroless non-root user (uid `65532`); the release checks it.
+* `pattern` cannot hang on values from the environment: RE2 matches in linear time.
+
+### Maintenance
+
+* Maintenance releases of an older major are published under the npm dist-tag `release-<major>` and no longer move the npm or Docker `latest` tags.
+* The release smoke test fails if an environment value appears in the output.
 
 ### Support
 
