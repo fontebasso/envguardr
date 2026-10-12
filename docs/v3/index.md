@@ -49,6 +49,8 @@
 <section id="guide" class="docs">
 <div class="container">
 
+> v3 receives security fixes only, for six months after the release of v4.0.0. See the [v4 documentation]({{base}}) and its migration guide.
+
 ## Quick start
 
 Create an `env.schema.js` file:
