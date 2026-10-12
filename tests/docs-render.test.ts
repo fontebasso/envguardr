@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildSite, renderPage } from "../scripts/docs/render.mjs";
-import { validateVersions } from "../scripts/docs/versions.mjs";
+import { addMajor, validateVersions } from "../scripts/docs/versions.mjs";
 
 const TEMPLATE =
   '<link href="{{base}}assets/style.css"><ul>{{versions}}</ul>{{banner}}<main>{{content}}</main>';
@@ -108,5 +108,26 @@ describe("buildSite", () => {
     expect(() =>
       buildSite({ template: TEMPLATE, versions: VERSIONS, pages: { "4": "# Four" } }),
     ).toThrow("Missing page for version 3");
+  });
+});
+
+describe("addMajor", () => {
+  it("adds the new major as the only latest, newest first", () => {
+    expect(addMajor([{ version: "3", latest: true }], "4")).toEqual([
+      { version: "4", latest: true },
+      { version: "3" },
+    ]);
+  });
+
+  it("rejects a major that is not greater than every existing one", () => {
+    expect(() => addMajor([{ version: "3", latest: true }], "3")).toThrow(
+      "New major 3 must be greater than 3",
+    );
+  });
+
+  it("rejects a non-numeric major", () => {
+    expect(() => addMajor([{ version: "3", latest: true }], "v4")).toThrow(
+      "Invalid version 'v4' in versions.json",
+    );
   });
 });

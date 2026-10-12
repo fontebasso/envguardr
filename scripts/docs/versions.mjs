@@ -20,3 +20,16 @@ export function validateVersions(versions) {
     throw new Error("versions.json must mark exactly one version as latest");
   }
 }
+
+export function addMajor(versions, major) {
+  validateVersions(versions);
+
+  const highest = Math.max(...versions.map(({ version }) => Number(version)));
+  if (Number(major) <= highest) {
+    throw new Error(`New major ${major} must be greater than ${highest}`);
+  }
+
+  const next = [{ version: major, latest: true }, ...versions.map(({ version }) => ({ version }))];
+  validateVersions(next);
+  return next;
+}

@@ -31,6 +31,7 @@
   "scripts": {
     "build": "node build.mjs && tsc -p tsconfig.build.json",
     "docs:build": "node scripts/build-docs.mjs",
+    "docs:new-major": "node scripts/docs-new-major.mjs",
     "format": "prettier --write ./src ./tests",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
