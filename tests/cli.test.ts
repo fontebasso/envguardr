@@ -29,6 +29,16 @@ describe("help and version", () => {
     expect(stderr).toBe("");
   });
 
+  it.each([[["validate", "--help"]], [["validate", APP, "-h"]], [["validate", APP, "--format", "json", "--help"]]])(
+    "prints help when --help or -h appears anywhere: %j",
+    async (argv) => {
+      const { code, stdout, stderr } = await cli(argv);
+      expect(code).toBe(0);
+      expect(stdout).toContain("envguardr validate <schema> [--format text|json]");
+      expect(stderr).toBe("");
+    },
+  );
+
   it("prints the package version", async () => {
     expect(await cli(["--version"])).toEqual({ code: 0, stdout: `${pkg.version}\n`, stderr: "" });
   });
@@ -104,6 +114,17 @@ describe("usage errors", () => {
       stdout: "",
       stderr: `❌ ${message}. Run 'envguardr --help' for usage.\n`,
     });
+  });
+
+  it("uses the last --format, and text when that one is invalid", async () => {
+    expect(await cli(["validate", APP, "--format=json", "--format=xml"])).toEqual({
+      code: 2,
+      stdout: "",
+      stderr: "❌ Invalid value for --format: expected text or json. Run 'envguardr --help' for usage.\n",
+    });
+    expect((await cli(["validate", "--format", "json", "--format", "text"])).stderr).toBe(
+      "❌ Missing schema path. Run 'envguardr --help' for usage.\n",
+    );
   });
 
   it("reports usage errors as JSON when JSON was requested", async () => {

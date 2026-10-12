@@ -29,8 +29,6 @@ Exit codes:
   2  could not validate (usage, schema or internal error)
 `;
 
-const HELP_ARGS = new Set(["help", "--help", "-h"]);
-
 export async function run(argv: string[], io: CliIO): Promise<number> {
   const format = requestedFormat(argv);
   try {
@@ -57,16 +55,19 @@ export async function run(argv: string[], io: CliIO): Promise<number> {
   }
 }
 
+// The last --format wins, as in parseArgs; anything but "json" falls back to text.
 function requestedFormat(argv: string[]): Format {
+  let format: string | undefined;
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === "--format=json") return "json";
-    if (argv[i] === "--format" && argv[i + 1] === "json") return "json";
+    if (argv[i].startsWith("--format=")) format = argv[i].slice("--format=".length);
+    else if (argv[i] === "--format") format = argv[i + 1];
   }
-  return "text";
+  return format === "json" ? "json" : "text";
 }
 
 function parseArgs(argv: string[]): Command {
-  if (argv.length === 0 || (argv.length === 1 && HELP_ARGS.has(argv[0]))) return { name: "help" };
+  if (argv.length === 0 || argv.includes("--help") || argv.includes("-h")) return { name: "help" };
+  if (argv.length === 1 && argv[0] === "help") return { name: "help" };
   if (argv.length === 1 && argv[0] === "--version") return { name: "version" };
 
   const [command, ...rest] = argv;
