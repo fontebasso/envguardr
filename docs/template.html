@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Fail-fast environment variable validation for Node.js, CI/CD, and containerized apps." />
+  <title>envguardr</title>
+  <link rel="icon" href="{{base}}assets/logo-envguardr.png" />
+  <link rel="stylesheet" href="{{base}}assets/style.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.12.0/styles/atom-one-dark.min.css"
+    integrity="sha512-Jk4AqjWsdSzSWCSuQTfYRIF84Rq/eV0G2+tu07byYwHcbTGfdmLrHjUSwvzp5HvbiqK4ibmNwdcG49Y5RGYPTg=="
+    crossorigin="anonymous" />
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="{{base}}" class="nav-logo">envguardr</a>
+      <ul>
+        <li><a href="#guide">Guide</a></li>
+        <li><a href="#docker">Docker</a></li>
+        <li><a href="#security">Security</a></li>
+        <li><a href="https://github.com/fontebasso/envguardr" target="_blank" rel="noopener">GitHub</a></li>
+      </ul>
+      <ul class="nav-versions">{{versions}}</ul>
+    </nav>
+  </header>
+
+  {{banner}}
+
+  <main>
+{{content}}
+  </main>
+
+  <footer>
+    <p>
+      Released under the <a href="https://github.com/fontebasso/envguardr/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a> ·
+      <a href="https://github.com/fontebasso/envguardr" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://www.npmjs.com/package/envguardr" target="_blank" rel="noopener">npm</a> ·
+      <a href="https://github.com/fontebasso/envguardr/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a>
+    </p>
+    <p class="footer-cta">If envguardr saved you from a bad deploy, consider <a href="https://github.com/fontebasso/envguardr" target="_blank" rel="noopener">leaving a star</a>.</p>
+  </footer>
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.12.0/highlight.min.js"
+    integrity="sha512-gzqHAlI1hVdzJ4wiQj/MkppDr6zgEdCoBsrXKRidcaZsSPvNQ3Fy5p7PpMt/8mltxTxMHj1Ur5NWbJdqIfpxgA=="
+    crossorigin="anonymous"></script>
+  <script src="{{base}}assets/script.js"></script>
+</body>
+</html>

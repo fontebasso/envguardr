@@ -30,6 +30,8 @@
   "license": "MIT",
   "scripts": {
     "build": "node build.mjs && tsc -p tsconfig.build.json",
+    "docs:build": "node scripts/build-docs.mjs",
+    "docs:new-major": "node scripts/docs-new-major.mjs",
     "format": "prettier --write ./src ./tests",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -69,7 +71,6 @@
     "valitype": "3.0.0"
   },
   "devDependencies": {
-    "fast-check": "^4.8.0",
     "@types/node": "^26.0.1",
     "@typescript-eslint/eslint-plugin": "^8.62.0",
     "@typescript-eslint/parser": "^8.62.0",
@@ -77,6 +78,8 @@
     "esbuild": "^0.28.1",
     "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",
+    "fast-check": "^4.8.0",
+    "marked": "^18.1.0",
     "prettier": "^3.8.5",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",

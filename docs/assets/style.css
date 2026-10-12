@@ -321,12 +321,12 @@ nav ul a:hover {
   border: 1px solid var(--border);
 }
 
-.code-block pre:has(code.lang-bash) {
+.code-block pre:has(code.language-bash) {
   padding-left: 3em;
   position: relative;
 }
 
-.code-block pre:has(code.lang-bash)::before {
+.code-block pre:has(code.language-bash)::before {
   content: '$';
   position: absolute;
   left: 1.2em;
@@ -464,4 +464,28 @@ footer p + p {
   .hero h1 { font-size: 2rem; }
   .terminal { min-width: unset; width: 100%; }
   nav ul { gap: 16px; }
+}
+
+/* Versions */
+nav > ul:not(.nav-versions) {
+  margin-left: auto;
+}
+
+.nav-versions {
+  margin-left: 24px;
+  padding-left: 24px;
+  border-left: 1px solid var(--border);
+}
+
+.nav-versions a[aria-current="page"] {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.version-banner {
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 24px;
+  text-align: center;
+  font-size: 0.9rem;
 }
