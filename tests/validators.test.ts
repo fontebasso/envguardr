@@ -1,5 +1,20 @@
 import { describe, it, expect } from "vitest";
-import { calendarDate, lengthAtLeast, lengthAtMost, matchesPattern } from "../src/validators";
+import { calendarDate, lengthAtLeast, lengthAtMost, matchesPattern, validUrl } from "../src/validators";
+
+describe("validUrl", () => {
+  it("accepts URLs of any scheme and international characters", () => {
+    expect(validUrl("bad url")("redis://:pw@localhost:6379/0")).toBe(true);
+    expect(validUrl("bad url")("https://例え.テスト/")).toBe(true);
+  });
+
+  it("returns the message for values that are not URLs", () => {
+    expect(validUrl("bad url")("localhost:8080")).toBe("bad url");
+  });
+
+  it("accepts an absent value", () => {
+    expect(validUrl("bad url")(undefined)).toBe(true);
+  });
+});
 
 describe("matchesPattern (RE2)", () => {
   it("searches without implicit anchors", () => {

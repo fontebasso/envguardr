@@ -56,7 +56,7 @@ describe("evaluate: types", () => {
     [{ type: "number" }, "abc", "INVALID_NUMBER", "X must be a valid number"],
     [{ type: "number" }, "1e5", "INVALID_NUMBER", "X must be a valid number"],
     [{ type: "boolean" }, "yes", "INVALID_BOOLEAN", 'X must be either "true" or "false"'],
-    [{ type: "url" }, "ftp://example.com", "INVALID_URL", "X must be a valid URL"],
+    [{ type: "url" }, "localhost:8080", "INVALID_URL", "X must be a valid URL"],
     [{ type: "enum", values: ["a", "b"] }, "c", "INVALID_ENUM", "X must be one of: a, b"],
   ])("reports %o with value %s", (partial, value, code, message) => {
     expect(evaluate(variable(partial), value)).toEqual({ key: "X", code, message });
@@ -67,6 +67,7 @@ describe("evaluate: types", () => {
     expect(evaluate(variable({ type: "number" }), "-3.5")).toBeNull();
     expect(evaluate(variable({ type: "boolean" }), "false")).toBeNull();
     expect(evaluate(variable({ type: "url" }), "https://example.com")).toBeNull();
+    expect(evaluate(variable({ type: "url" }), "postgres://user:p%40ss@db:5432/app")).toBeNull();
     expect(evaluate(variable({ type: "enum", values: ["a", "b"] }), "b")).toBeNull();
   });
 });

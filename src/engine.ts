@@ -1,7 +1,7 @@
 import { validateValue, validators, ValidationError } from "valitype";
 import type { CustomValidatorFn, Rule } from "valitype";
 import type { Variable } from "./schema/types.js";
-import { calendarDate, lengthAtLeast, lengthAtMost, matchesPattern } from "./validators.js";
+import { calendarDate, lengthAtLeast, lengthAtMost, matchesPattern, validUrl } from "./validators.js";
 
 export type Issue = { key: string; code: string; message: string };
 
@@ -42,6 +42,10 @@ function steps(variable: Variable): Step[] {
   const add = (code: string, validator: CustomValidatorFn) =>
     result.push({ code, rule: { type: "custom", validator } });
 
+  if (variable.type === "url") {
+    add("INVALID_URL", validUrl(`${name} must be a valid URL`));
+  }
+
   if (variable.type === "string") {
     const { pattern, minLength, maxLength, format } = variable;
     if (pattern !== undefined) {
@@ -77,6 +81,10 @@ function steps(variable: Variable): Step[] {
 function typeRule(variable: Variable): Rule {
   if (variable.type === "enum") {
     return { type: { enum: variable.values }, required: variable.required };
+  }
+  // url is checked by validUrl (RFC 3986/3987); valitype only handles presence.
+  if (variable.type === "url") {
+    return { type: "string", required: variable.required };
   }
   return { type: variable.type, required: variable.required };
 }

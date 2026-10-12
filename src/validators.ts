@@ -1,5 +1,6 @@
 import { RE2JS } from "re2js";
 import type { CustomValidatorFn } from "valitype";
+import { isUrl } from "./url.js";
 
 // Validators that valitype 3 does not provide (or provides too loosely).
 
@@ -11,6 +12,11 @@ const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 export function matchesPattern(pattern: string, message: string): CustomValidatorFn {
   const re = RE2JS.compile(pattern);
   return (value) => value === undefined || re.matcher(value).find() || message;
+}
+
+// valitype 3's url accepts only http/https and follows the WHATWG parser, not the RFCs.
+export function validUrl(message: string): CustomValidatorFn {
+  return (value) => value === undefined || isUrl(value) || message;
 }
 
 // valitype 3 has no length validator. Count code points, not UTF-16 units.

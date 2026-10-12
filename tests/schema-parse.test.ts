@@ -187,8 +187,8 @@ describe("parseSchema: default must satisfy the variable rules", () => {
       "'default' does not satisfy the variable rules: X must be one of: a, b",
     ],
     [
-      "url default with another protocol",
-      schemaWith({ type: "url", default: "ftp://example.com" }),
+      "url default without scheme://",
+      schemaWith({ type: "url", default: "localhost:8080" }),
       "'default' does not satisfy the variable rules: X must be a valid URL",
     ],
     [
@@ -203,7 +203,7 @@ describe("parseSchema: default must satisfy the variable rules", () => {
     ],
     [
       "custom message",
-      schemaWith({ type: "url", default: "ftp://example.com", message: "X must use https" }),
+      schemaWith({ type: "url", default: "localhost:8080", message: "X must use https" }),
       "'default' does not satisfy the variable rules: X must use https",
     ],
   ])("%s", (_, raw, message) => {

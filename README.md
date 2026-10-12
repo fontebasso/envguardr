@@ -87,7 +87,7 @@ docker run --rm -v "$PWD:/app:z" -e API_URL -e PORT -e NODE_ENV \
 | `string` | `pattern`, `minLength`, `maxLength`, `format` (`json`, `date`) |
 | `number` | `min`, `max` |
 | `boolean` | — |
-| `url` | — |
+| `url` | — (any `scheme://` URL per RFC 3986/3987) |
 | `enum` | `values` (required) |
 
 Every variable accepts `required`, `default` and `message`. See the [schema reference](https://fontebasso.github.io/envguardr/#guide).

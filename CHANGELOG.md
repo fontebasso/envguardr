@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * The schema is now a declarative YAML (or JSON) file with `version: 1`. JavaScript schemas are no longer loaded or executed.
 * Removed `type: 'custom'` validator functions and `validators.awsArn`; use `pattern` instead.
+* `type: url` now follows RFC 3986 with RFC 3987 international characters and requires `scheme://`: any scheme is accepted (`postgres://`, `redis://`…), while values the old parser tolerated, such as unencoded spaces, are rejected.
 * `required: true` now also rejects an empty value (`VAR=`), so an unset CI secret no longer passes.
 * Exit code `2` now means the environment could not be validated (usage error, missing, malformed or invalid schema, internal error). Exit code `1` only means an invalid environment.
 * The Docker `latest` tag now points to v4. Pin `docker.io/fontebasso/envguardr:3` to stay on v3.

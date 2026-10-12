@@ -127,7 +127,7 @@ variables:
 | `string` | Any string | `pattern`, `minLength`, `maxLength`, `format` |
 | `number` | Decimal numbers; rejects `0xff`, `1e5` | `min`, `max` |
 | `boolean` | `true` or `false` only | — |
-| `url` | `http` or `https` URLs | — |
+| `url` | Any `scheme://` URL per RFC 3986, with international characters per RFC 3987: `https://`, `postgres://`, `redis://`, `sqlite:///`… | — |
 | `enum` | One of `values` (required) | — |
 
 | Constraint | Meaning |
@@ -153,6 +153,7 @@ Every variable also accepts:
 - A `default` must satisfy the variable's own rules; otherwise the schema is invalid.
 - The schema is strict: unknown keys, constraints that do not belong to the type and invalid values are errors (exit `2`), never ignored.
 - YAML 1.2 is used, so `yes`, `no`, `on` and `off` are plain strings.
+- A `url` must include `scheme://`, so `localhost:8080` is rejected. Special characters in credentials must be percent-encoded (`p%40ss` for `p@ss`). To allow only some schemes, add a `pattern` such as `'^https://'`.
 - A `number` default is a YAML number: `0x10` means `16`. Write it as a plain decimal; exponent forms such as `1e21` are rejected.
 - Anchors and aliases are allowed; merge keys (`<<`) are not.
 
