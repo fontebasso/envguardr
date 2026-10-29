@@ -21,7 +21,7 @@
     "kubernetes",
     "secrets"
   ],
-  "version": "4.0.0",
+  "version": "4.0.1",
   "private": false,
   "type": "module",
   "author": "Samuel Fontebasso",
@@ -65,7 +65,7 @@
   },
   "homepage": "https://github.com/fontebasso/envguardr#readme",
   "dependencies": {
-    "re2js": "^2.8.6",
+    "re2js": "^2.8.7",
     "valitype": "3.0.0",
     "yaml": "^2.9.1"
   },

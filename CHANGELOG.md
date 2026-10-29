@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2026-10-29
+
+### Security
+
+* Updated `re2js` to `2.9.1` and raised its minimum to `2.8.7`, which fixes CVE-2026-116795 (quadratic-time matching with the `LOOKBEHINDS` flag). envguardr does not enable that flag, so it was not exploitable, but the Docker image no longer ships the affected version.
+
+### Changed
+
+* Updated `vitest` and `@vitest/coverage-v8` to `5.0.5`, `eslint` to `10.13.0`, `@typescript-eslint/*` to `8.72.1`, `marked` to `18.1.2` and `@types/node` to `26.6.6`.
+* Updated the `distroless/nodejs24-debian13` and `node` base image digests.
+* Updated GitHub Actions pins (`docker/login-action`, `codeql-action`) and moved CI to Node.js 26.
+
+### Maintenance
+
+* No changes to the public API, CLI behavior, Docker usage, or validation logic.
+
 ## [4.0.0] - 2026-10-12
 
 ### BREAKING
