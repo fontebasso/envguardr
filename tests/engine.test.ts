@@ -72,9 +72,62 @@ describe("evaluate: types", () => {
   });
 });
 
+describe("evaluate: url (RFC 3986 with RFC 3987 characters, scheme:// required)", () => {
+  it.each([
+    "https://api.example.com",
+    "https://api.example.com:8443/v1/items?limit=10&sort=-created#top",
+    "postgres://user:p%40ss@db.internal:5432/app?sslmode=require",
+    "redis://:secret@localhost:6379/0",
+    "mongodb+srv://user:pass@cluster0.example.net/db?retryWrites=true",
+    "amqp://guest:guest@rabbit:5672/%2F",
+    "sqlite:///var/data/app.db",
+    "file:///tmp/x",
+    "http://[::1]:8080/",
+    "http://[2001:db8::7]/c=GB?objectClass?one",
+    "http://[v1.fe80::a+en1]/",
+    "http://192.168.0.1",
+    "http://host:",
+    "HTTPS://EXAMPLE.COM",
+    "https://exämple.com/ação",
+    "https://例え.テスト/パス?クエリ#断片",
+    "https://user:sénha@example.com/",
+    "https://example.com/?q=\u{E000}",
+  ])("accepts %s", (value) => {
+    expect(evaluate(variable({ type: "url" }), value)).toBeNull();
+  });
+
+  it.each([
+    "",
+    "not-a-url",
+    "localhost:8080",
+    "mailto:ops@example.com",
+    "urn:isbn:0451450523",
+    "example.com",
+    "//example.com",
+    "1http://example.com",
+    "ht tp://example.com",
+    "https://exa mple.com",
+    "https://example.com/a b",
+    "postgres://user:p@ss@host",
+    "http://host:port",
+    "http://[::1",
+    "http://[::1]x",
+    "http://[fe80::1%25eth0]/",
+    "http://[zz::1]/",
+    "http://example.com/%zz",
+    "https://example.com/#frag#more",
+    "https://example.com/\u{E000}",
+    "https://example.com/\u{FFFE}",
+    "https://exa\nmple.com",
+    "http://ex<ample>.com",
+  ])("rejects %j", (value) => {
+    expect(evaluate(variable({ type: "url" }), value)).toMatchObject({ code: "INVALID_URL" });
+  });
+});
+
 describe("evaluate: constraints", () => {
   it.each([
-    [{ type: "string", pattern: "^[a-z]+$" }, "ABC", "PATTERN_MISMATCH", "X must match the pattern ^[a-z]+$"],
+    [{ type: "string", pattern: "^[a-z]+$" }, "ABC", "PATTERN_MISMATCH", "X must match the pattern"],
     [{ type: "string", minLength: 3 }, "ab", "TOO_SHORT", "X must be at least 3 characters long"],
     [{ type: "string", maxLength: 2 }, "abc", "TOO_LONG", "X must be at most 2 characters long"],
     [{ type: "string", format: "json" }, "{x}", "INVALID_FORMAT", "X must be valid JSON"],
@@ -98,6 +151,29 @@ describe("evaluate: constraints", () => {
   ])("accepts %o with value %s", (partial, value) => {
     expect(evaluate(variable(partial), value)).toBeNull();
   });
+
+  it("runs pattern in linear time on patterns that backtrack in JavaScript", () => {
+    const started = Date.now();
+    expect(evaluate(variable({ type: "string", pattern: "^(a+)+$" }), `${"a".repeat(50_000)}!`)).toMatchObject({
+      code: "PATTERN_MISMATCH",
+    });
+    expect(Date.now() - started).toBeLessThan(1000);
+  });
+
+  it("does not anchor pattern implicitly", () => {
+    expect(evaluate(variable({ type: "string", pattern: "^a$" }), "xax")).toMatchObject({ code: "PATTERN_MISMATCH" });
+  });
+
+  it.each(["2024-02-29", "2023-12-31", "0023-01-01"])("accepts the date %s", (value) => {
+    expect(evaluate(variable({ type: "string", format: "date" }), value)).toBeNull();
+  });
+
+  it.each(["2023-02-30", "2023-02-29", "2023-13-01", "2023-2-1", "2023-02-01T00:00:00Z", "", "not-a-date"])(
+    "rejects the date %j",
+    (value) => {
+      expect(evaluate(variable({ type: "string", format: "date" }), value)).toMatchObject({ code: "INVALID_FORMAT" });
+    },
+  );
 
   it("checks the type before the constraints", () => {
     expect(evaluate(variable({ type: "number", min: 1 }), "abc")).toMatchObject({ code: "INVALID_NUMBER" });
